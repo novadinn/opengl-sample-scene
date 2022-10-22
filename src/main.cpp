@@ -7,6 +7,8 @@
 #include "graphics/raw_model.cpp"
 #include "graphics/shader.cpp"
 #include "graphics/textures.cpp"
+#include "graphics/directional_light.cpp"
+#include "graphics/spot_light.cpp"
 #include "objects/game_object.cpp"
 #include "objects/cube_map.cpp"
 #include "platform.h"
@@ -190,8 +192,14 @@ int main() {
     ResourceLoader loader;
     RawModel cube_model = loader.loadToVAO(cube_positions, cube_normals, cube_tex_coords);    
     // TODO: create file_system
-    Texture2D container_texture = loader.loadTexture("img\\textures\\container.jpg");
+    Texture2D container_texture = loader.loadTexture("img\\textures\\container2.png");
+    Texture2D container_specular_texture = loader.loadTexture
+	("img\\textures\\container2_specular.png");
     Shader shader = loader.loadShader("shaders\\default.vs", "shaders\\default.fs");
+    shader.bind();
+    shader.setInteger("material.diffuse", 0);
+    shader.setInteger("material.specular", 1); // TODO: bind that in game object class
+    shader.unbind();
     GameObject cube(cube_model, shader, container_texture);
     cube.position = glm::vec3(3.0f, -1.0f, 0.0f);
     
@@ -261,6 +269,9 @@ int main() {
     Shader skybox_shader = loader.loadShader("shaders\\skybox.vs", "shaders\\skybox.fs");
     CubeMap cube_map(cube_map_model, skybox_shader, skybox_day_texture, skybox_night_texture);
 
+    DirectionalLight dir_light(shader, glm::vec3(-0.2f, -1.0f, -0.3f));
+    SpotLight spot_light(shader);
+    
     while (!glfwWindowShouldClose(window)) {
         float current_time = (float)glfwGetTime();
         global_delta_time = current_time - global_last_time;
@@ -279,6 +290,15 @@ int main() {
 								 0.1f, 100.0f);
         glm::mat4 view = global_camera.getViewMatrix();
 
+	spot_light.position = global_camera.position;
+	spot_light.direction = global_camera.front;
+	
+	shader.bind();
+        shader.setFloat("material.shininess", 32.0f);
+
+        dir_light.draw(global_camera.position);
+	spot_light.draw(global_camera.position);
+	
 	cube.draw(projection, view);
 
 	view = glm::mat4(glm::mat3(global_camera.getViewMatrix()));
