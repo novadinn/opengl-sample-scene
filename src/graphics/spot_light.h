@@ -6,9 +6,10 @@
 #include "shader.h"
 
 struct SpotLight {
-    SpotLight(Shader shader);
+    SpotLight();
+    SpotLight(glm::vec3 position, glm::vec3 direction);
 
-    void draw(glm::vec3 view_pos);
+    void draw(Shader shader, glm::vec3& view_pos);
 
     glm::vec3 position;
     glm::vec3 direction;
@@ -20,9 +21,6 @@ struct SpotLight {
     float quadratic;
     float cutoff;
     float outer_cutoff;
-    
-private:
-    Shader shader_;
 };
 
 #endif

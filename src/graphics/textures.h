@@ -4,6 +4,7 @@
 #include "../platform.h"
 
 struct Texture2D {
+    Texture2D() {}
     Texture2D(uint id, int width, int height);
 
     uint getId() const;

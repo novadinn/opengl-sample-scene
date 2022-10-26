@@ -1,7 +1,7 @@
 #include "game_object.h"
 
-GameObject::GameObject(RawModel model, Shader shader, Texture2D texture) :
-    model_(model), shader_(shader), texture_(texture),
+GameObject::GameObject(RawModel model, Shader shader) :
+    model_(model), shader_(shader), 
     position(glm::vec3(0.0f)), size(glm::vec3(1.0f)), rotation(glm::vec3(0.0f)) {}
 
 void GameObject::draw(glm::mat4& projection, glm::mat4& view) {
@@ -14,8 +14,6 @@ void GameObject::draw(glm::mat4& projection, glm::mat4& view) {
     model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, -0.5f * size.z));
     model = glm::scale(model, size);
 
-    glActiveTexture(GL_TEXTURE0);
-    texture_.bind();
     shader_.bind();
     model_.bind();
 
@@ -26,5 +24,4 @@ void GameObject::draw(glm::mat4& projection, glm::mat4& view) {
     
     RawModel::unbind();
     Shader::unbind();
-    Texture2D::unbind();
 }

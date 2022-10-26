@@ -10,13 +10,22 @@
 #include <stb_image.h>
 #include "textures.h"
 #include "shader.h"
+#include "frame_buffer.h"
 
 struct ResourceLoader {
     RawModel loadToVAO(std::vector<float> positions, std::vector<float> normals, std::vector<float> tex_coords);
     RawModel loadToVAO(std::vector<float> positions);
+    
     Texture2D loadTexture(const char *file);
+    Texture2D createTextureAttachment(int width, int height);
+    Texture2D createDepthTextureAttachment(int width, int height);
+    uint createDepthBufferAttachment(int width, int height);
     Texture3D loadCubeMap(std::vector<std::string> faces);
-    Shader loadShader(const char *vs, const char *fs);
+
+    FrameBuffer createFrameBuffer();
+    
+    Shader loadVSFSShader(const char *vs, const char *fs);
+    Shader loadVSGSFSShader(const char *vs, const char* gs, const char *fs);
     
     void clear();
 private:
@@ -28,6 +37,8 @@ private:
     std::vector<uint> VAOs_;
     std::vector<uint> VBOs_;
     std::vector<uint> textures_;
+    std::vector<uint> FBOs_;
+    std::vector<uint> renderbuffers_;
     std::vector<uint> shaders_;
 };
 

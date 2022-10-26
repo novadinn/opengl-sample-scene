@@ -9,10 +9,10 @@
 #include "../graphics/textures.h"
 
 struct GameObject {
-    GameObject(RawModel model, Shader shader, Texture2D texture);
+    GameObject(RawModel model, Shader shader);
     virtual ~GameObject() {};
 
-    void draw(glm::mat4& projection, glm::mat4& view);
+    virtual void draw(glm::mat4& projection, glm::mat4& view);
     
     glm::vec3 position;
     glm::vec3 size;
@@ -21,7 +21,6 @@ struct GameObject {
 protected:
     RawModel model_;
     Shader shader_;
-    Texture2D texture_;
 };
 
 #endif

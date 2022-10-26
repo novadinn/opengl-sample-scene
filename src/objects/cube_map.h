@@ -4,12 +4,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "../graphics/raw_model.h"
-#include "../graphics/shader.h"
-#include "../graphics/textures.h"
+#include "../graphics/resource_loader.h"
 
 struct CubeMap {
-    CubeMap(RawModel model, Shader shader, Texture3D day_texture, Texture3D night_texture);
+    CubeMap(ResourceLoader& loader);
 
     void draw(glm::mat4& projection, glm::mat4& view);
     void update(float delta_time);

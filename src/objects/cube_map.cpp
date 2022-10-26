@@ -2,7 +2,29 @@
 
 #include <math.h>
 
+#include "../file_system.h"
+#include "../primitives.h"
+
 namespace {
+    const std::string kCubeMapVSFSShaderFilePath = file_system::join("shaders\\skybox.vs");
+    const std::string kCubeMapFSFSShaderFilePath = file_system::join("shaders\\skybox.fs");
+    const std::vector<std::string> kSkyboxDayTextures = {
+	file_system::join("img\\textures\\skybox\\right.jpg").c_str(),
+	file_system::join("img\\textures\\skybox\\left.jpg").c_str(),
+	file_system::join("img\\textures\\skybox\\top.jpg").c_str(),
+	file_system::join("img\\textures\\skybox\\bottom.jpg").c_str(),
+	file_system::join("img\\textures\\skybox\\front.jpg").c_str(),
+	file_system::join("img\\textures\\skybox\\back.jpg").c_str()
+    };
+    const std::vector<std::string> kSkyboxNightTextures = {
+	file_system::join("img\\textures\\skybox\\nightRight.jpg").c_str(),
+	file_system::join("img\\textures\\skybox\\nightLeft.jpg").c_str(),
+	file_system::join("img\\textures\\skybox\\nightTop.jpg").c_str(),
+	file_system::join("img\\textures\\skybox\\nightBottom.jpg").c_str(),
+	file_system::join("img\\textures\\skybox\\nightFront.jpg").c_str(),
+	file_system::join("img\\textures\\skybox\\nightBack.jpg").c_str()
+    };
+    
     const float kRotationSpeed = 1.0f;
     const float kConstant1 = 5000.0f;
     const float kConstant2 = 8000.0f;
@@ -10,8 +32,12 @@ namespace {
     const float kConstant4 = 24000.0f;
 }
 
-CubeMap::CubeMap(RawModel model, Shader shader, Texture3D day_texture, Texture3D night_texture) :
-    model_(model), shader_(shader), day_texture_(day_texture), night_texture_(night_texture) {
+CubeMap::CubeMap(ResourceLoader& loader) :
+    model_(loader.loadToVAO(primitives::cube_positions)),
+    shader_(loader.loadVSFSShader(kCubeMapVSFSShaderFilePath.c_str(), kCubeMapFSFSShaderFilePath.c_str())),
+    day_texture_(loader.loadCubeMap(kSkyboxDayTextures)),
+    night_texture_(loader.loadCubeMap(kSkyboxNightTextures)) {
+    
     shader_.bind();
     shader_.setInteger("dayTexture", 0);
     shader_.setInteger("nightTexture", 1);
@@ -53,7 +79,8 @@ void CubeMap::draw(glm::mat4& projection, glm::mat4& view) {
     shader_.setMatrix4("projection", projection);
     shader_.setMatrix4("view", rotated_view);
     glDrawArrays(GL_TRIANGLES, 0, model_.getVertexCount());
-    
+
+    Texture2D::activate(0);
     Texture3D::unbind();
     RawModel::unbind();
     Shader::unbind();

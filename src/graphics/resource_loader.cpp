@@ -50,6 +50,43 @@ Texture2D ResourceLoader::loadTexture(const char *file) {
     return Texture2D(texture_id, width, height);
 }
 
+Texture2D ResourceLoader::createTextureAttachment(int width, int height) {
+    uint id;
+    glGenTextures(1, &id);
+    glBindTexture(GL_TEXTURE_2D, id);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, id, 0);
+    
+    textures_.push_back(id);
+    return Texture2D(id, width, height);
+}
+
+Texture2D ResourceLoader::createDepthTextureAttachment(int width, int height) {
+    uint id;
+    glGenTextures(1, &id);
+    glBindTexture(GL_TEXTURE_2D, id);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, id, 0);
+
+    textures_.push_back(id);
+    return Texture2D(id, width, height);
+}
+
+uint ResourceLoader::createDepthBufferAttachment(int width, int height) {
+    uint id;
+    glGenRenderbuffers(1, &id);
+    glBindRenderbuffer(GL_RENDERBUFFER, id);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, id);
+
+    renderbuffers_.push_back(id);
+    return id;
+}
+
 Texture3D ResourceLoader::loadCubeMap(std::vector<std::string> faces) {
     uint texture_id;
     glGenTextures(1, &texture_id);
@@ -78,7 +115,15 @@ Texture3D ResourceLoader::loadCubeMap(std::vector<std::string> faces) {
     return Texture3D(texture_id);
 }
 
-Shader ResourceLoader::loadShader(const char *vs, const char *fs) {
+FrameBuffer ResourceLoader::createFrameBuffer() {
+    uint id;
+    glGenFramebuffers(1, &id);
+    glBindFramebuffer(GL_FRAMEBUFFER, id);
+    glDrawBuffer(GL_COLOR_ATTACHMENT0);
+    return FrameBuffer(id);
+}
+
+Shader ResourceLoader::loadVSFSShader(const char *vs, const char *fs) {
     std::string v_code;
     std::string f_code;
     try {
@@ -121,6 +166,62 @@ Shader ResourceLoader::loadShader(const char *vs, const char *fs) {
     return Shader(shader_id);
 }
 
+Shader ResourceLoader::loadVSGSFSShader(const char *vs, const char* gs, const char *fs) {
+    std::string v_code;
+    std::string g_code;
+    std::string f_code;
+    try {
+        std::ifstream vs_file(vs);
+	std::ifstream gs_file(gs);
+        std::ifstream fs_file(fs);
+        std::stringstream vs_stream, gs_stream, fs_stream;
+        vs_stream << vs_file.rdbuf();
+	gs_stream << gs_file.rdbuf();
+        fs_stream << fs_file.rdbuf();
+        vs_file.close();
+	gs_file.close();
+        fs_file.close();
+        v_code = vs_stream.str();
+	g_code = gs_stream.str();
+        f_code = fs_stream.str();
+    } catch (std::exception e) {
+        std::cout << "ERROR::SHADER: Failed to read shader files" << std::endl;
+    }
+    const char *vs_code = v_code.c_str();
+    const char *gs_code = g_code.c_str();
+    const char *fs_code = f_code.c_str();
+    
+    unsigned int vertex_shader, geometry_shader, fragment_shader;
+    vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex_shader, 1, &vs_code, NULL);
+    glCompileShader(vertex_shader);
+    checkShaderCompileErrors(vertex_shader, "VERTEX");
+
+    geometry_shader = glCreateShader(GL_GEOMETRY_SHADER);
+    glShaderSource(geometry_shader, 1, &gs_code, NULL);
+    glCompileShader(geometry_shader);
+    checkShaderCompileErrors(geometry_shader, "GEOMETRY");
+    
+    fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment_shader, 1, &fs_code, NULL);
+    glCompileShader(fragment_shader);
+    checkShaderCompileErrors(fragment_shader, "FRAGMENT");
+
+    uint shader_id;
+    shader_id = glCreateProgram();
+    glAttachShader(shader_id, vertex_shader);
+    glAttachShader(shader_id, geometry_shader);
+    glAttachShader(shader_id, fragment_shader);
+    glLinkProgram(shader_id);
+    checkShaderCompileErrors(shader_id, "PROGRAM");
+    glDeleteShader(vertex_shader);
+    glDeleteShader(geometry_shader);
+    glDeleteShader(fragment_shader);
+
+    shaders_.push_back(shader_id);
+    return Shader(shader_id);
+}
+
 void ResourceLoader::clear() {
     for(int i = 0; i < VAOs_.size(); ++i) {
 	glDeleteVertexArrays(1, &VAOs_[i]);
@@ -134,6 +235,14 @@ void ResourceLoader::clear() {
 	glDeleteTextures(1, &textures_[i]);
     }
     textures_.clear();
+    for(int i = 0; i < FBOs_.size(); ++i) {
+	glDeleteFramebuffers(1, &FBOs_[i]);
+    }
+    FBOs_.clear();
+    for(int i = 0; i < renderbuffers_.size(); ++i) {
+	glDeleteRenderbuffers(1, &renderbuffers_[i]);
+    }
+    renderbuffers_.clear();
     for(int i = 0; i < shaders_.size(); ++i) {
 	glDeleteProgram(shaders_[i]);
     }
