@@ -17,6 +17,7 @@
 #include "objects/flashlight.cpp"
 #include "objects/water.cpp"
 #include "camera.cpp"
+#include "keyboard.cpp"
 #include "platform.h"
 #include "primitives.h"
 #include "file_system.h"
@@ -102,17 +103,21 @@ int main() {
     CubeMap cube_map(loader);
     Water water(loader);
     water.position = glm::vec3(0.0f, -0.5f, 0.0f);
-
-    GuiElement refraction(water.getRefractionTexture(), loader);
-    refraction.position = glm::vec2(-0.5f, 0.5f);
-    refraction.size = glm::vec2(0.25f, 0.25f);
-    GuiElement reflection(water.getReflectionTexture(), loader);
-    reflection.position = glm::vec2(0.5f, 0.5f);
-    reflection.size = glm::vec2(0.25f, 0.25f);
     
     const glm::vec4 up_clip_plane(0.0f, -1.0f, 0.0f, water.position.y);
     // TODO: add those to all shaders (except water)!
     const glm::vec4 down_clip_plane(0.0f, 1.0f, 0.0f, -water.position.y);
+    const glm::vec4 high_clip_plane(1.0f, -1.0f, 0.0f, (float)MAX_INTEGER);
+
+    Keyboard keyboard;
+    keyboard.addKeyBinding(GLFW_KEY_ESCAPE);
+    keyboard.addKeyBinding(GLFW_KEY_W);
+    keyboard.addKeyBinding(GLFW_KEY_S);
+    keyboard.addKeyBinding(GLFW_KEY_A);
+    keyboard.addKeyBinding(GLFW_KEY_D);
+    keyboard.addKeyBinding(GLFW_KEY_SPACE);
+    keyboard.addKeyBinding(GLFW_KEY_LEFT_CONTROL);
+    keyboard.addKeyBinding(GLFW_KEY_F);
     
     while (!glfwWindowShouldClose(window)) {
         float current_time = (float)glfwGetTime();
@@ -120,16 +125,17 @@ int main() {
         global_last_time = current_time;
 
 	// update
-        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) global_camera.moveForward(global_delta_time);
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) global_camera.moveBackward(global_delta_time);
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) global_camera.moveLeft(global_delta_time);
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) global_camera.moveRight(global_delta_time);
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) global_camera.moveUp(global_delta_time);
-	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) global_camera.moveDown(global_delta_time);
-	// TODO: create a keyboard class and check for key up messages for that method
-	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) flashlight.toggle();
+	keyboard.updateKeyStates(window);
+	
+	if(keyboard.isKeyDown(GLFW_KEY_ESCAPE))
+	    glfwSetWindowShouldClose(window, true);
+	if(keyboard.isKeyPressed(GLFW_KEY_W)) global_camera.moveForward(global_delta_time);
+	if(keyboard.isKeyPressed(GLFW_KEY_S)) global_camera.moveBackward(global_delta_time);
+	if(keyboard.isKeyPressed(GLFW_KEY_A)) global_camera.moveLeft(global_delta_time);
+	if(keyboard.isKeyPressed(GLFW_KEY_D)) global_camera.moveRight(global_delta_time);
+	if(keyboard.isKeyPressed(GLFW_KEY_SPACE)) global_camera.moveUp(global_delta_time);
+	if(keyboard.isKeyPressed(GLFW_KEY_LEFT_CONTROL)) global_camera.moveDown(global_delta_time);
+	if(keyboard.isKeyDown(GLFW_KEY_F)) flashlight.toggle();
 
 	cube_map.update(global_delta_time);
 	flashlight.update(global_camera.position, global_camera.front);
@@ -161,12 +167,14 @@ int main() {
 	float distance = 2 * (global_camera.position.y - water.position.y);
 	global_camera.position.y -= distance;
 	global_camera.pitch = -global_camera.pitch;
+	global_camera.updateCameraVectors();
 	main_shader.bind();
 	main_shader.setVector4f("plane", down_clip_plane);
 	Shader::unbind();
 	render();
 	global_camera.position.y += distance;
 	global_camera.pitch = -global_camera.pitch;
+	global_camera.updateCameraVectors();
 
 	// refraction
 	water.bindRefractionFrameBuffer();
@@ -176,15 +184,17 @@ int main() {
 	render();
 	glDisable(GL_CLIP_DISTANCE0); // FIXME: this works not for all drives for some reason, but you can
 	// set the clip plane's height to some high value instead
+	main_shader.bind();
+	main_shader.setVector4f("plane", high_clip_plane);
 	water.unbindCurrentFrameBuffer();
+	Shader::unbind();
 
+	// basic rendering
 	render();
 	glm::mat4 projection = global_camera.getProjectionMatrix((float)WINDOW_WIDTH, (float)WINDOW_HEIGHT,
 								 0.1f, 100.0f);
 	glm::mat4 view = global_camera.getViewMatrix();
 	water.draw(projection, view);
-	refraction.draw();
-	reflection.draw();
 	
         glfwSwapBuffers(window);
         glfwPollEvents();

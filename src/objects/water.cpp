@@ -29,6 +29,11 @@ Water::Water(ResourceLoader& loader) :
     refraction_frame_buffer_ = loader.createFrameBuffer();
     refraction_texture_ = loader.createTextureAttachment(kRefractionWidth, kRefractionHeight);
     refraction_depth_texture_ = loader.createDepthTextureAttachment(kRefractionWidth, kRefractionHeight);;
+
+    shader_.bind();
+    shader_.setInteger("reflectionTexture", 0);
+    shader_.setInteger("refractionTexture", 1);
+    Shader::unbind();
 }
 
 void Water::bindReflectionFrameBuffer() {
@@ -54,6 +59,10 @@ void Water::draw(glm::mat4& projection, glm::mat4& view) {
     model = glm::scale(model, size);
 
     shader_.bind();
+    Texture2D::activate(0);
+    reflection_texture_.bind();
+    Texture2D::activate(1);
+    refraction_texture_.bind();
     model_.bind();
     RawModel::enableAttribute(0);
     RawModel::enableAttribute(1);
@@ -69,6 +78,8 @@ void Water::draw(glm::mat4& projection, glm::mat4& view) {
     RawModel::disableAttribute(1);
     RawModel::disableAttribute(2);
     RawModel::unbind();
+    Texture2D::deactivate();
+    Texture2D::unbind();
     Shader::unbind();
 }
 

@@ -29,6 +29,8 @@ public:
     void processMouseMovement(float x_offset, float y_offset, GLboolean constrain_pitch = true);
     void processMouseScroll(float y_offset);
 
+    void updateCameraVectors();
+    
     glm::vec3 position;
     glm::vec3 world_up;
     glm::vec3 front;
@@ -42,7 +44,6 @@ public:
     float mouse_sensitivity;
     float zoom;
 private:
-    void updateCameraVectors();
 };
 
 #endif

@@ -11,6 +11,9 @@
 #define ARRAY_LENGTH(arr) (int)((sizeof((arr)) / (sizeof((arr)[0]))))
 #define BUFFER_OFFSET(offset) ((void*)(offset))
 
+#define MAX_INTEGER 2147483647
+#define MIN_INTEGER -2147483648
+
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
