@@ -20,3 +20,11 @@ void RawModel::bind() const {
 void RawModel::unbind() {
     glBindVertexArray(0);
 }
+
+void RawModel::enableAttribute(int number) {
+    glEnableVertexAttribArray(number);
+}
+
+void RawModel::disableAttribute(int number) {
+    glDisableVertexAttribArray(number);
+}

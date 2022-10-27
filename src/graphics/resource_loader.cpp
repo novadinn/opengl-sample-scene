@@ -14,11 +14,11 @@ RawModel ResourceLoader::loadToVAO(std::vector<float> positions,
     return RawModel(VAO_id, positions.size()/3);
 }
 
-RawModel ResourceLoader::loadToVAO(std::vector<float> positions) {
+RawModel ResourceLoader::loadToVAO(std::vector<float> positions, int dimension) {
     uint VAO_id = createVAO();
-    storeDataInAttributeList(0, 3, positions);
+    storeDataInAttributeList(0, dimension, positions);
     glBindVertexArray(0);
-    return RawModel(VAO_id, positions.size()/3);
+    return RawModel(VAO_id, positions.size()/dimension);
 }
 
 Texture2D ResourceLoader::loadTexture(const char *file) {
@@ -264,7 +264,7 @@ void ResourceLoader::storeDataInAttributeList(int attribute_number, int coordina
     glBindBuffer(GL_ARRAY_BUFFER, VBO_id);
     glBufferData(GL_ARRAY_BUFFER, data.size()*sizeof(float), data.data(), GL_STATIC_DRAW);
     glVertexAttribPointer(attribute_number, coordinate_size, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(attribute_number);
+    // glEnableVertexAttribArray(attribute_number);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 

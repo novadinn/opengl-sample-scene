@@ -160,6 +160,13 @@ namespace primitives {
 	0.0f,  0.0f,
 	0.0f,  1.0f
     };
+
+    global_variable std::vector<float> square_positions = {
+	-1.0f, 1.0f,
+	-1.0f, -1.0f,
+	1.0f, 1.0f,
+	1.0f, -1.0f
+    };
 }
 
 #endif

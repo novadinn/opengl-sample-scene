@@ -16,6 +16,7 @@ struct Texture2D {
     shared void unbind();
 
     shared void activate(int index);
+    shared void deactivate();
 private:
     uint id_;
     

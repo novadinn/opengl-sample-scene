@@ -14,14 +14,14 @@ void GameObject::draw(glm::mat4& projection, glm::mat4& view) {
     model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, -0.5f * size.z));
     model = glm::scale(model, size);
 
-    shader_.bind();
     model_.bind();
+    shader_.bind();
 
     shader_.setMatrix4("projection", projection);
     shader_.setMatrix4("view", view);
     shader_.setMatrix4("model", model);
     glDrawArrays(GL_TRIANGLES, 0, model_.getVertexCount());
     
-    RawModel::unbind();
     Shader::unbind();
+    RawModel::unbind();
 }

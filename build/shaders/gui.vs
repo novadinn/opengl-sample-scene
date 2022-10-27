@@ -1,6 +1,6 @@
 #version 330 core
 
-layout (location = 1) in vec2 inPosition;
+layout (location = 0) in vec2 inPosition;
 
 out VS_OUT {
     vec2 textureCoords;

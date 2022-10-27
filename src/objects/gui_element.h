@@ -3,7 +3,7 @@
 
 #include <glm/glm.hpp>
 
-#include "resource_loader.h"
+#include "../graphics/resource_loader.h"
 
 struct GuiElement {
     GuiElement(Texture2D texture, ResourceLoader& loader);

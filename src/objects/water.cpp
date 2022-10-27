@@ -55,6 +55,9 @@ void Water::draw(glm::mat4& projection, glm::mat4& view) {
 
     shader_.bind();
     model_.bind();
+    RawModel::enableAttribute(0);
+    RawModel::enableAttribute(1);
+    RawModel::enableAttribute(2);
     
     shader_.setMatrix4("projection", projection);
     shader_.setMatrix4("view", view);
@@ -62,6 +65,17 @@ void Water::draw(glm::mat4& projection, glm::mat4& view) {
     
     glDrawArrays(GL_TRIANGLES, 0, model_.getVertexCount());
 
+    RawModel::disableAttribute(0);
+    RawModel::disableAttribute(1);
+    RawModel::disableAttribute(2);
     RawModel::unbind();
     Shader::unbind();
+}
+
+Texture2D Water::getReflectionTexture() const {
+    return reflection_texture_;
+}
+
+Texture2D Water::getRefractionTexture() const {
+    return refraction_texture_;
 }

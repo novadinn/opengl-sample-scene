@@ -13,6 +13,9 @@ struct Water : public GameObject {
     
     void draw(glm::mat4& projection, glm::mat4& view);
 
+    Texture2D getReflectionTexture() const;
+    Texture2D getRefractionTexture() const;
+    
 private:
     FrameBuffer reflection_frame_buffer_;
     Texture2D reflection_texture_;

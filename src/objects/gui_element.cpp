@@ -11,7 +11,7 @@ namespace {
 GuiElement::GuiElement(Texture2D texture, ResourceLoader& loader) :
     texture_(texture),
     shader_(loader.loadVSFSShader(kGuiVSShaderFilePath.c_str(), kGuiFSShaderFilePath.c_str())),
-    model_(loader.loadToVAO(primitives::plane_positions)),
+    model_(loader.loadToVAO(primitives::square_positions, 2)),
     size(1.0f, 1.0f) {}
 
 void GuiElement::draw() {
@@ -23,17 +23,22 @@ void GuiElement::draw() {
     model = glm::scale(model, glm::vec3(size, 1.0f));
 
     shader_.bind();
-    model_.bind();
     texture_.bind();
+    model_.bind();
+    RawModel::enableAttribute(0);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    // glDisable(GL_DEPTH_TEST); // TODO: test for depth testing and disable if enabled
+    glDisable(GL_DEPTH_TEST);
 
     shader_.setMatrix4("model", model);
-    glDrawArrays(GL_TRIANGLES, 0, model_.getVertexCount());
-    
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, model_.getVertexCount());
+
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
+
+    RawModel::disableAttribute(0);
+    RawModel::unbind();
     Texture2D::unbind();
     Shader::unbind();
-    RawModel::unbind();
 }

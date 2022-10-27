@@ -14,7 +14,7 @@
 
 struct ResourceLoader {
     RawModel loadToVAO(std::vector<float> positions, std::vector<float> normals, std::vector<float> tex_coords);
-    RawModel loadToVAO(std::vector<float> positions);
+    RawModel loadToVAO(std::vector<float> positions, int dimension);
     
     Texture2D loadTexture(const char *file);
     Texture2D createTextureAttachment(int width, int height);

@@ -1,9 +1,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "graphics/resource_loader.cpp"
 #include "glm/gtc/type_ptr.hpp"
-#include "camera.cpp"
+#include "graphics/resource_loader.cpp"
 #include "graphics/raw_model.cpp"
 #include "graphics/shader.cpp"
 #include "graphics/textures.cpp"
@@ -11,12 +10,13 @@
 #include "graphics/directional_light.cpp"
 #include "graphics/spot_light.cpp"
 #include "graphics/point_light.cpp"
-#include "graphics/gui_element.cpp"
+#include "objects/gui_element.cpp"
 #include "objects/game_object.cpp"
 #include "objects/textured_object.cpp"
 #include "objects/cube_map.cpp"
 #include "objects/flashlight.cpp"
 #include "objects/water.cpp"
+#include "camera.cpp"
 #include "platform.h"
 #include "primitives.h"
 #include "file_system.h"
@@ -76,7 +76,7 @@ int main() {
     RawModel cube_model =
 	loader.loadToVAO(primitives::cube_positions, primitives::cube_normals, primitives::cube_tex_coords);
     RawModel simple_cube_model =
-	loader.loadToVAO(primitives::cube_positions);
+	loader.loadToVAO(primitives::cube_positions, 3);
     RawModel plane_model =
 	loader.loadToVAO(primitives::plane_positions, primitives::plane_normals, primitives::plane_tex_coords);
     
@@ -100,14 +100,15 @@ int main() {
     TexturedObject plane(plane_model, main_shader, container_diffuse_texture, container_specular_texture);
     plane.position = glm::vec3(0.0f, -2.0f, 0.0f);
     CubeMap cube_map(loader);
-    GameObject lamp(simple_cube_model, default_shader);
-    lamp.position = glm::vec3(4.0f, 0.5f, 0.0f);
-    lamp.size = glm::vec3(0.25f, 0.25f, 0.25f);
     Water water(loader);
     water.position = glm::vec3(0.0f, -0.5f, 0.0f);
 
-    GuiElement refraction(container_diffuse_texture, loader);
-    refraction.size = glm::vec2(100.0f, 100.0f);
+    GuiElement refraction(water.getRefractionTexture(), loader);
+    refraction.position = glm::vec2(-0.5f, 0.5f);
+    refraction.size = glm::vec2(0.25f, 0.25f);
+    GuiElement reflection(water.getReflectionTexture(), loader);
+    reflection.position = glm::vec2(0.5f, 0.5f);
+    reflection.size = glm::vec2(0.25f, 0.25f);
     
     const glm::vec4 up_clip_plane(0.0f, -1.0f, 0.0f, water.position.y);
     // TODO: add those to all shaders (except water)!
@@ -144,13 +145,10 @@ int main() {
 	    
 	    dir_light.draw(main_shader, global_camera.position);
 	    point_light.draw(main_shader, global_camera.position);
-	
+	    
 	    flashlight.draw(main_shader, global_camera.position);
 	    cube.draw(projection, view);
 	    plane.draw(projection, view);
-	    lamp.draw(projection, view);
-
-	    refraction.draw();
 
 	    view = glm::mat4(glm::mat3(global_camera.getViewMatrix()));
 	    cube_map.draw(projection, view);
@@ -176,7 +174,6 @@ int main() {
 	main_shader.setVector4f("plane", up_clip_plane);
 	Shader::unbind();
 	render();
-
 	glDisable(GL_CLIP_DISTANCE0); // FIXME: this works not for all drives for some reason, but you can
 	// set the clip plane's height to some high value instead
 	water.unbindCurrentFrameBuffer();
@@ -186,8 +183,10 @@ int main() {
 								 0.1f, 100.0f);
 	glm::mat4 view = global_camera.getViewMatrix();
 	water.draw(projection, view);
+	refraction.draw();
+	reflection.draw();
 	
-        glfwSwapBuffers(window); // NOTE: add shoud we move that as well?
+        glfwSwapBuffers(window);
         glfwPollEvents();
     }
 

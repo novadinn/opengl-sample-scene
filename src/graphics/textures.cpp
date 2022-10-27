@@ -33,6 +33,10 @@ void Texture2D::activate(int index) {
     glActiveTexture(GL_TEXTURE0+index);
 }
 
+void Texture2D::deactivate() {
+    glActiveTexture(GL_TEXTURE0);
+}
+
 Texture3D::Texture3D(uint id) :
     id_(id) {}
 

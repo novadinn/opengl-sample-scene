@@ -16,10 +16,8 @@ private:
     RawModel model_;
     Shader shader_;
     Texture3D day_texture_;
-    Texture3D night_texture_;
 
     float rotation_;
-    float time_;
 };
 
 #endif
