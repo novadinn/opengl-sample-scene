@@ -30,6 +30,11 @@ public:
     void processMouseScroll(float y_offset);
 
     void updateCameraVectors();
+
+    void setPitch(float pitch);
+    float getPitch() const;
+    void setYaw(float yaw);
+    float getYaw() const;
     
     glm::vec3 position;
     glm::vec3 world_up;
@@ -37,13 +42,13 @@ public:
     glm::vec3 up;
     glm::vec3 right;
     
-    float yaw;
-    float pitch;
-    
     float movement_speed;
     float mouse_sensitivity;
     float zoom;
+    
 private:
+    float yaw_;
+    float pitch_;
 };
 
 #endif

@@ -11,8 +11,10 @@ struct Water : public GameObject {
     void bindRefractionFrameBuffer();
     void unbindCurrentFrameBuffer();
     
-    void draw(glm::mat4& projection, glm::mat4& view);
-
+    void draw(glm::mat4& projection, glm::mat4& view,
+	      glm::vec3 camera_position, glm::vec3 light_position, glm::vec3 light_color);
+    void update(float delta_time);
+    
     Texture2D getReflectionTexture() const;
     Texture2D getRefractionTexture() const;
     
@@ -24,6 +26,10 @@ private:
     FrameBuffer refraction_frame_buffer_;
     Texture2D refraction_texture_;
     Texture2D refraction_depth_texture_;
+
+    Texture2D dudv_map_;
+    Texture2D normal_map_;
+    float move_factor_;
 };
 
 #endif
