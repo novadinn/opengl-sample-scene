@@ -9,18 +9,22 @@ namespace {
     const std::string kWaterVSShaderFilePath = file_system::join("shaders\\water.vs");
     const std::string kWaterFSShaderFilePath = file_system::join("shaders\\water.fs");
     
-    const std::string kTextureFilePath = file_system::join("img\\textures\\container2.png");
-
     const int kReflectionWidth = 320;
     const int kReflectionHeight = 180;	
     const int kRefractionWidth = 1280;
     const int kRefractionHeight = 720;
+    
+    const std::string kDuDvMapFilePath = file_system::join("img\\textures\\water\\water_dudv.png");
+    const std::string kNormalMapFilePath = file_system::join("img\\textures\\water\\water_normal_map.png");
+    const float kMoveSpeed = 0.03f;
 }
 
 Water::Water(ResourceLoader& loader) :
     GameObject(loader.loadToVAO(
 		   primitives::plane_positions, primitives::plane_normals, primitives::plane_tex_coords),
-	       loader.loadVSFSShader(kWaterVSShaderFilePath.c_str(), kWaterFSShaderFilePath.c_str())) {
+	       loader.loadVSFSShader(kWaterVSShaderFilePath.c_str(), kWaterFSShaderFilePath.c_str())),
+    dudv_map_(loader.loadTexture(kDuDvMapFilePath.c_str())),
+    normal_map_(loader.loadTexture(kNormalMapFilePath.c_str())) {
 
     reflection_frame_buffer_ = loader.createFrameBuffer();
     reflection_texture_ = loader.createTextureAttachment(kReflectionWidth, kReflectionHeight);
@@ -33,6 +37,9 @@ Water::Water(ResourceLoader& loader) :
     shader_.bind();
     shader_.setInteger("reflectionTexture", 0);
     shader_.setInteger("refractionTexture", 1);
+    shader_.setInteger("dudvMap", 2);
+    shader_.setInteger("normalMap", 3);
+    shader_.setInteger("depthMap", 4);
     Shader::unbind();
 }
 
@@ -48,7 +55,8 @@ void Water::unbindCurrentFrameBuffer() {
     FrameBuffer::unbind();
 }
 
-void Water::draw(glm::mat4& projection, glm::mat4& view) {
+void Water::draw(glm::mat4& projection, glm::mat4& view, glm::vec3 camera_position,
+		 glm::vec3 light_position, glm::vec3 light_color) {
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, position);
     model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.5f * size.z));
@@ -63,17 +71,32 @@ void Water::draw(glm::mat4& projection, glm::mat4& view) {
     reflection_texture_.bind();
     Texture2D::activate(1);
     refraction_texture_.bind();
+    Texture2D::activate(2);
+    dudv_map_.bind();
+    Texture2D::activate(3);
+    normal_map_.bind();
+    Texture2D::activate(4);
+    refraction_depth_texture_.bind();
     model_.bind();
     RawModel::enableAttribute(0);
     RawModel::enableAttribute(1);
     RawModel::enableAttribute(2);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     shader_.setMatrix4("projection", projection);
     shader_.setMatrix4("view", view);
     shader_.setMatrix4("model", model);
+    shader_.setFloat("moveFactor", move_factor_);
+    shader_.setVector3f("cameraPosition", camera_position);
+    shader_.setVector3f("lightPosition", light_position);
+    shader_.setVector3f("lightColor", light_color);
     
     glDrawArrays(GL_TRIANGLES, 0, model_.getVertexCount());
 
+    glDisable(GL_BLEND);
+    
     RawModel::disableAttribute(0);
     RawModel::disableAttribute(1);
     RawModel::disableAttribute(2);
@@ -81,6 +104,11 @@ void Water::draw(glm::mat4& projection, glm::mat4& view) {
     Texture2D::deactivate();
     Texture2D::unbind();
     Shader::unbind();
+}
+
+void Water::update(float delta_time) {
+    move_factor_ += kMoveSpeed * delta_time;
+    move_factor_ = fmodf(move_factor_, 1);
 }
 
 Texture2D Water::getReflectionTexture() const {
