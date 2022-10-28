@@ -3,12 +3,10 @@
 
 #include <glm/glm.hpp>
 
-#include "shader.h"
-
 struct PointLight {
     PointLight(glm::vec3 position, int index);
 
-    void draw(Shader shader, glm::vec3& view_pos);
+    int index;
     
     glm::vec3 position;
     glm::vec3 ambient;
@@ -17,9 +15,6 @@ struct PointLight {
     float constant;
     float linear;
     float quadratic;
-
-private:
-    int index_;
 };
 
 #endif

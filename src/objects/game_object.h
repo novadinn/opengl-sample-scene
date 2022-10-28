@@ -11,8 +11,6 @@
 struct GameObject {
     GameObject(RawModel model, Shader shader);
     virtual ~GameObject() {};
-
-    virtual void draw(glm::mat4& projection, glm::mat4& view);
     
     glm::vec3 position;
     glm::vec3 size;

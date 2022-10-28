@@ -11,13 +11,3 @@ DirectionalLight::DirectionalLight(glm::vec3 dir) :
     ambient(directional_light::kDefaultAmbient),
     diffuse(directional_light::kDefaultDiffuse),
     specular(directional_light::kDefaultSpecular) {}
-
-void DirectionalLight::draw(Shader shader, glm::vec3& view_pos) {
-    shader.bind();
-    shader.setVector3f("viewPos", view_pos);
-    shader.setVector3f("dirLight.direction", direction);
-    shader.setVector3f("dirLight.ambient", ambient);
-    shader.setVector3f("dirLight.diffuse", diffuse);
-    shader.setVector3f("dirLight.specular", specular);
-    Shader::unbind();
-}

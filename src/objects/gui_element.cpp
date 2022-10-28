@@ -4,8 +4,8 @@
 #include "../primitives.h"
 
 namespace {
-    const std::string kGuiVSShaderFilePath = file_system::join("shaders\\gui.vs");
-    const std::string kGuiFSShaderFilePath = file_system::join("shaders\\gui.fs");
+    const std::string kGuiVSShaderFilePath = file_system::join("shaders\\gui.vert");
+    const std::string kGuiFSShaderFilePath = file_system::join("shaders\\gui.frag");
 }
 
 GuiElement::GuiElement(Texture2D texture, ResourceLoader& loader) :

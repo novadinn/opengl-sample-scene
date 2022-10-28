@@ -1,16 +1,24 @@
 #include "textured_object.h"
 
-TexturedObject::TexturedObject(RawModel model, Shader shader, Texture2D diffuse, Texture2D specular) :
-    GameObject(model, shader), diffuse_(diffuse), specular_(specular) {
+TexturedObject::TexturedObject(RawModel model, Shader shader, std::vector<ObjectTexture> textures) :
+    GameObject(model, shader), textures_(textures) {
     
     shader_.bind();
-    shader_.setInteger("material.diffuse", 0);
-    shader_.setInteger("material.specular", 1);
+    for(int i = 0; i < textures_.size(); ++i) {
+	if(textures_[i].type == DIFFUSE) {
+	    shader_.setInteger("material.diffuse", textures_[i].type);
+	} else if(textures_[i].type == SPECULAR) {
+	    shader_.setInteger("material.specular", textures_[i].type);
+	}
+    }
+    
     shader_.setFloat("material.shininess", 32.0f);
     Shader::unbind();
 }
 
-void TexturedObject::draw(glm::mat4& projection, glm::mat4& view) {
+void TexturedObject::draw(glm::mat4& projection, glm::mat4& view,
+			  glm::vec3& view_pos, DirectionalLight& dir_light,
+			  SpotLight& spot_light, PointLight& point_light) {
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, position);
     model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.5f * size.z));
@@ -21,10 +29,16 @@ void TexturedObject::draw(glm::mat4& projection, glm::mat4& view) {
     model = glm::scale(model, size);
 
     shader_.bind();
-    Texture2D::activate(0);
-    diffuse_.bind();
-    Texture2D::activate(1);
-    specular_.bind();
+    for(int i = 0; i < textures_.size(); ++i) {
+	if(textures_[i].type == DIFFUSE) {
+	    Texture2D::activate(textures_[i].type);
+	    textures_[i].texture.bind();
+	} else if(textures_[i].type == SPECULAR) {
+	    Texture2D::activate(textures_[i].type);
+	    textures_[i].texture.bind();
+	}
+    }
+    
     model_.bind();
     RawModel::enableAttribute(0);
     RawModel::enableAttribute(1);
@@ -33,6 +47,33 @@ void TexturedObject::draw(glm::mat4& projection, glm::mat4& view) {
     shader_.setMatrix4("projection", projection);
     shader_.setMatrix4("view", view);
     shader_.setMatrix4("model", model);
+
+    shader_.setVector3f("viewPos", view_pos);
+    shader_.setVector3f("dirLight.direction", dir_light.direction);
+    shader_.setVector3f("dirLight.ambient", dir_light.ambient);
+    shader_.setVector3f("dirLight.diffuse", dir_light.diffuse);
+    shader_.setVector3f("dirLight.specular", dir_light.specular);
+
+    shader_.setVector3f("spotLight.position", spot_light.position);
+    shader_.setVector3f("spotLight.direction", spot_light.direction);
+    shader_.setVector3f("spotLight.ambient", spot_light.ambient);
+    shader_.setVector3f("spotLight.diffuse", spot_light.diffuse);
+    shader_.setVector3f("spotLight.specular", spot_light.specular);
+    shader_.setFloat("spotLight.constant", spot_light.constant);
+    shader_.setFloat("spotLight.linear", spot_light.linear);
+    shader_.setFloat("spotLight.quadratic", spot_light.quadratic);
+    shader_.setFloat("spotLight.cutOff", spot_light.cutoff);
+    shader_.setFloat("spotLight.outerCutOff", spot_light.outer_cutoff);
+    
+    std::string number = std::to_string(point_light.index);
+    shader_.setVector3f(("pointLights[" + number + "].position").c_str(), point_light.position);
+    shader_.setVector3f(("pointLights[" + number + "].ambient").c_str(), point_light.ambient);
+    shader_.setVector3f(("pointLights[" + number + "].diffuse").c_str(), point_light.diffuse);
+    shader_.setVector3f(("pointLights[" + number + "].specular").c_str(), point_light.specular);
+    shader_.setFloat(("pointLights[" + number + "].constant").c_str(), point_light.constant);
+    shader_.setFloat(("pointLights[" + number + "].linear").c_str(), point_light.linear);
+    shader_.setFloat(("pointLights[" + number + "].quadratic").c_str(), point_light.quadratic);
+    
     glDrawArrays(GL_TRIANGLES, 0, model_.getVertexCount());
 
     RawModel::disableAttribute(0);

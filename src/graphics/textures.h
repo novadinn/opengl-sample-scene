@@ -37,4 +37,13 @@ private:
     uint id_;
 };
 
+enum TextureType {
+    DIFFUSE,
+    SPECULAR
+};
+struct ObjectTexture {
+    TextureType type;
+    Texture2D texture;
+};
+
 #endif

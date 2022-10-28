@@ -31,19 +31,3 @@ SpotLight::SpotLight(glm::vec3 position, glm::vec3 direction) :
     quadratic(spot_light::kDefaultQuadratic),
     cutoff(spot_light::kDefaultCutoff),
     outer_cutoff(spot_light::kDefaultOuterCutoff) {}
-
-void SpotLight::draw(Shader shader, glm::vec3& view_pos) {
-    shader.bind();
-    shader.setVector3f("viewPos", view_pos);
-    shader.setVector3f("spotLight.position", position);
-    shader.setVector3f("spotLight.direction", direction);
-    shader.setVector3f("spotLight.ambient", ambient);
-    shader.setVector3f("spotLight.diffuse", diffuse);
-    shader.setVector3f("spotLight.specular", specular);
-    shader.setFloat("spotLight.constant", constant);
-    shader.setFloat("spotLight.linear", linear);
-    shader.setFloat("spotLight.quadratic", quadratic);
-    shader.setFloat("spotLight.cutOff", cutoff);
-    shader.setFloat("spotLight.outerCutOff", outer_cutoff);
-    Shader::unbind();
-}

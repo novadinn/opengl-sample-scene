@@ -6,8 +6,8 @@
 #include "../primitives.h"
 
 namespace {
-    const std::string kCubeMapVSFSShaderFilePath = file_system::join("shaders\\skybox.vs");
-    const std::string kCubeMapFSFSShaderFilePath = file_system::join("shaders\\skybox.fs");
+    const std::string kCubeMapVSFSShaderFilePath = file_system::join("shaders\\skybox.vert");
+    const std::string kCubeMapFSFSShaderFilePath = file_system::join("shaders\\skybox.frag");
     const std::vector<std::string> kSkyboxDayTextures = {
 	file_system::join("img\\textures\\skybox\\right.jpg").c_str(),
 	file_system::join("img\\textures\\skybox\\left.jpg").c_str(),

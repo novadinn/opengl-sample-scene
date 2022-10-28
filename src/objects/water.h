@@ -10,9 +10,18 @@ struct Water : public GameObject {
     void bindReflectionFrameBuffer();	
     void bindRefractionFrameBuffer();
     void unbindCurrentFrameBuffer();
+<<<<<<< Updated upstream
     
     void draw(glm::mat4& projection, glm::mat4& view);
 
+=======
+
+    // TODO: add all lighting types to the water shader
+    void draw(glm::mat4& projection, glm::mat4& view,
+	      glm::vec3 camera_position, glm::vec3 light_position, glm::vec3 light_color);
+    void update(float delta_time);
+    
+>>>>>>> Stashed changes
     Texture2D getReflectionTexture() const;
     Texture2D getRefractionTexture() const;
     

@@ -3,13 +3,9 @@
 
 #include <glm/glm.hpp>
 
-#include "shader.h"
-
 struct SpotLight {
     SpotLight();
     SpotLight(glm::vec3 position, glm::vec3 direction);
-
-    void draw(Shader shader, glm::vec3& view_pos);
 
     glm::vec3 position;
     glm::vec3 direction;

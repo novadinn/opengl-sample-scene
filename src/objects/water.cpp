@@ -6,8 +6,8 @@
 #include "../primitives.h"
 
 namespace {
-    const std::string kWaterVSShaderFilePath = file_system::join("shaders\\water.vs");
-    const std::string kWaterFSShaderFilePath = file_system::join("shaders\\water.fs");
+    const std::string kWaterVSShaderFilePath = file_system::join("shaders\\water.vert");
+    const std::string kWaterFSShaderFilePath = file_system::join("shaders\\water.frag");
     
     const std::string kTextureFilePath = file_system::join("img\\textures\\container2.png");
 

@@ -7,9 +7,9 @@
 #include "graphics/shader.cpp"
 #include "graphics/textures.cpp"
 #include "graphics/frame_buffer.cpp"
-#include "graphics/directional_light.cpp"
-#include "graphics/spot_light.cpp"
-#include "graphics/point_light.cpp"
+#include "objects/directional_light.cpp"
+#include "objects/spot_light.cpp"
+#include "objects/point_light.cpp"
 #include "objects/gui_element.cpp"
 #include "objects/game_object.cpp"
 #include "objects/textured_object.cpp"
@@ -82,23 +82,22 @@ int main() {
 	loader.loadToVAO(primitives::plane_positions, primitives::plane_normals, primitives::plane_tex_coords);
     
     Shader main_shader = loader.loadVSFSShader(
-	file_system::join("shaders\\main.vs").c_str(),
-	file_system::join("shaders\\main.fs").c_str());
-    Shader default_shader = loader.loadVSFSShader(
-	file_system::join("shaders\\default.vs").c_str(),
-	file_system::join("shaders\\default.fs").c_str());
+	file_system::join("shaders\\main.vert").c_str(),
+	file_system::join("shaders\\main.frag").c_str());
     
-    default_shader.bind();
-    default_shader.setVector4f("color", glm::vec4(1.0f));
-    Shader::unbind();
+    Flashlight flashlight;
     
     DirectionalLight dir_light(glm::vec3(-0.2f, -1.0f, -0.3f));
     PointLight point_light(glm::vec3(4.0f, 0.5f, 0.0f), 0);
-    
-    Flashlight flashlight;
-    TexturedObject cube(cube_model, main_shader, container_diffuse_texture, container_specular_texture);
+    SpotLight* spot_light(&flashlight.spot_light);
+
+    std::vector<ObjectTexture> object_textures = {
+	{ DIFFUSE, container_diffuse_texture },
+	{ SPECULAR, container_specular_texture }
+    };
+    TexturedObject cube(cube_model, main_shader, object_textures);
     cube.position = glm::vec3(3.0f, -1.0f, 0.0f);
-    TexturedObject plane(plane_model, main_shader, container_diffuse_texture, container_specular_texture);
+    TexturedObject plane(plane_model, main_shader, object_textures);
     plane.position = glm::vec3(0.0f, -2.0f, 0.0f);
     CubeMap cube_map(loader);
     Water water(loader);
@@ -148,13 +147,9 @@ int main() {
 	    glm::mat4 projection = global_camera.getProjectionMatrix((float)WINDOW_WIDTH, (float)WINDOW_HEIGHT,
 								 0.1f, 100.0f);
 	    glm::mat4 view = global_camera.getViewMatrix();
-	    
-	    dir_light.draw(main_shader, global_camera.position);
-	    point_light.draw(main_shader, global_camera.position);
-	    
-	    flashlight.draw(main_shader, global_camera.position);
-	    cube.draw(projection, view);
-	    plane.draw(projection, view);
+	    	    
+	    cube.draw(projection, view, global_camera.position, dir_light, *spot_light, point_light);
+	    plane.draw(projection, view, global_camera.position, dir_light, *spot_light, point_light);
 
 	    view = glm::mat4(glm::mat3(global_camera.getViewMatrix()));
 	    cube_map.draw(projection, view);
@@ -230,5 +225,5 @@ internal void mouse_callback(GLFWwindow* window, double new_x, double new_y) {
 }
 
 internal void scroll_callback(GLFWwindow* window, double x_offset, double y_offset) {
-    global_camera.processMouseScroll(static_cast<float>(y_offset));
+    global_camera.processMouseScroll((float)y_offset);
 }
