@@ -13,8 +13,8 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch) :
     movement_speed(kDefaultSpeed), mouse_sensitivity(kDefaultSensitivity), zoom(kDefaultZoom) {
     position = position;
     world_up = up;
-    yaw = yaw;
-    pitch = pitch;
+    yaw_ = yaw;
+    pitch_ = pitch;
     updateCameraVectors();
 }
 
@@ -23,8 +23,8 @@ Camera::Camera(float pos_x, float pos_y, float pos_z, float up_x, float up_y, fl
     movement_speed(kDefaultSpeed), mouse_sensitivity(kDefaultSensitivity), zoom(kDefaultZoom) {
     position = glm::vec3(pos_x, pos_y, pos_z);
     world_up = glm::vec3(up_x, up_y, up_z);
-    yaw = yaw;
-    pitch = pitch;
+    yaw_ = yaw;
+    pitch_ = pitch;
     updateCameraVectors();
 }
 
@@ -70,12 +70,12 @@ void Camera::processMouseMovement(float x_offset, float y_offset, GLboolean cons
     x_offset *= mouse_sensitivity;
     y_offset *= mouse_sensitivity;
 
-    yaw   += x_offset;
-    pitch += y_offset;
+    yaw_   += x_offset;
+    pitch_ += y_offset;
 
     if (constrain_pitch) {
-	if (pitch > 89.0f) pitch = 89.0f;
-	if (pitch < -89.0f) pitch = -89.0f;
+	if (pitch_ > 89.0f) pitch_ = 89.0f;
+	if (pitch_ < -89.0f) pitch_ = -89.0f;
     }
 
     updateCameraVectors();
@@ -89,10 +89,28 @@ void Camera::processMouseScroll(float y_offset) {
 
 void Camera::updateCameraVectors() {
     glm::vec3 new_front;
-    new_front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    new_front.y = sin(glm::radians(pitch));
-    new_front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    new_front.x = cos(glm::radians(yaw_)) * cos(glm::radians(pitch_));
+    new_front.y = sin(glm::radians(pitch_));
+    new_front.z = sin(glm::radians(yaw_)) * cos(glm::radians(pitch_));
     front = glm::normalize(new_front);
     right = glm::normalize(glm::cross(front, world_up));
     up = glm::normalize(glm::cross(right, front));
+}
+
+void Camera::setPitch(float pitch) {
+    pitch_ = pitch;
+    updateCameraVectors();
+}
+
+float Camera::getPitch() const {
+    return pitch_;
+}
+
+void Camera::setYaw(float yaw) {
+    yaw_ = yaw;
+    updateCameraVectors();
+}
+
+float Camera::getYaw() const {
+    return yaw_;
 }

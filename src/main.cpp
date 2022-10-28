@@ -137,6 +137,7 @@ int main() {
 	if(keyboard.isKeyDown(GLFW_KEY_F)) flashlight.toggle();
 
 	cube_map.update(global_delta_time);
+	water.update(global_delta_time);
 	flashlight.update(global_camera.position, global_camera.front);
 	
 	// draw
@@ -161,24 +162,21 @@ int main() {
 	water.bindReflectionFrameBuffer();
 	float distance = 2 * (global_camera.position.y - water.position.y);
 	global_camera.position.y -= distance;
-	global_camera.pitch = -global_camera.pitch;
-	global_camera.updateCameraVectors();
+	global_camera.setPitch(-global_camera.getPitch());
 	main_shader.bind();
-	main_shader.setVector4f("plane", down_clip_plane);
+	main_shader.setVector4f("plane", down_clip_plane); // NOTE: Test edges with +1.0
 	Shader::unbind();
 	render();
 	global_camera.position.y += distance;
-	global_camera.pitch = -global_camera.pitch;
-	global_camera.updateCameraVectors();
+	global_camera.setPitch(-global_camera.getPitch());
 
 	// refraction
 	water.bindRefractionFrameBuffer();
 	main_shader.bind();
-	main_shader.setVector4f("plane", up_clip_plane);
+	main_shader.setVector4f("plane", up_clip_plane); // NOTE: test edges with +1.0 or -1.0
 	Shader::unbind();
 	render();
-	glDisable(GL_CLIP_DISTANCE0); // FIXME: this works not for all drives for some reason, but you can
-	// set the clip plane's height to some high value instead
+	glDisable(GL_CLIP_DISTANCE0);
 	main_shader.bind();
 	main_shader.setVector4f("plane", high_clip_plane);
 	water.unbindCurrentFrameBuffer();
@@ -189,7 +187,7 @@ int main() {
 	glm::mat4 projection = global_camera.getProjectionMatrix((float)WINDOW_WIDTH, (float)WINDOW_HEIGHT,
 								 0.1f, 100.0f);
 	glm::mat4 view = global_camera.getViewMatrix();
-	water.draw(projection, view);
+	water.draw(projection, view, global_camera.position, point_light.position, glm::vec3(1.0, 1.0, 1.0));
 	
         glfwSwapBuffers(window);
         glfwPollEvents();
