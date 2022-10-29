@@ -231,6 +231,10 @@ void ResourceLoader::clear() {
 	glDeleteBuffers(1, &VBOs_[i]);
     }
     VBOs_.clear();
+    for(int i = 0; i < EBOs_.size(); ++i) {
+	glDeleteBuffers(1, &EBOs_[i]);
+    }
+    EBOs_.clear();
     for(int i = 0; i < textures_.size(); ++i) {
 	glDeleteTextures(1, &textures_[i]);
     }
