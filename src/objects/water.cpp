@@ -6,8 +6,8 @@
 #include "../primitives.h"
 
 namespace {
-    const std::string kWaterVSShaderFilePath = file_system::join("shaders\\water.vert");
-    const std::string kWaterFSShaderFilePath = file_system::join("shaders\\water.frag");
+    const std::string kWaterVSShaderFilePath = file_system::join("shaders\\water_vert.glsl");
+    const std::string kWaterFSShaderFilePath = file_system::join("shaders\\water_frag.glsl");
     
     const int kReflectionWidth = 320;
     const int kReflectionHeight = 180;	

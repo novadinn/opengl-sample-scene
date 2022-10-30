@@ -11,7 +11,6 @@
 #include "textures.h"
 #include "shader.h"
 #include "frame_buffer.h"
-#include "mesh.h"
 
 struct ResourceLoader {
     RawModel loadToVAO(std::vector<float> positions, std::vector<float> normals, std::vector<float> tex_coords);
