@@ -22,10 +22,6 @@
 #include "primitives.h"
 #include "file_system.h"
 
-// #include "graphics/mesh.cpp"
-// #include "objects/model.cpp"
-#include "objects/model.h"
-
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
 
@@ -86,8 +82,8 @@ int main() {
 	loader.loadToVAO(primitives::plane_positions, primitives::plane_normals, primitives::plane_tex_coords);
     
     Shader main_shader = loader.loadVSFSShader(
-	file_system::join("shaders\\main.vert").c_str(),
-	file_system::join("shaders\\main.frag").c_str());
+	file_system::join("shaders\\main_vert.glsl").c_str(),
+	file_system::join("shaders\\main_frag.glsl").c_str());
     
     Flashlight flashlight;
     
@@ -106,8 +102,6 @@ int main() {
     CubeMap cube_map(loader);
     Water water(loader);
     water.position = glm::vec3(0.0f, -0.5f, 0.0f);
-    
-    Model model(file_system::join("objects\\backpack\\backpack.obj").c_str());
     
     const glm::vec4 up_clip_plane(0.0f, -1.0f, 0.0f, water.position.y);
     // TODO: add those to all shaders (except water)!
@@ -154,17 +148,9 @@ int main() {
 	    glm::mat4 projection = global_camera.getProjectionMatrix((float)WINDOW_WIDTH, (float)WINDOW_HEIGHT,
 								 0.1f, 100.0f);
 	    glm::mat4 view = global_camera.getViewMatrix();
-	    	    
+	    
 	    cube.draw(projection, view, global_camera.position, dir_light, *spot_light, point_light);
 	    plane.draw(projection, view, global_camera.position, dir_light, *spot_light, point_light);
-	    main_shader.bind();
-	    glm::mat4 identity = glm::mat4(1.0f);
-	    // TODO: set this in model class
-	    main_shader.setMatrix4("model", identity);
-	    main_shader.setMatrix4("projection", projection);
-	    main_shader.setMatrix4("view", view);
-	    model.draw(main_shader);
-	    Shader::unbind();
 
 	    view = glm::mat4(glm::mat3(global_camera.getViewMatrix()));
 	    cube_map.draw(projection, view);
