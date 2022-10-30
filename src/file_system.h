@@ -25,6 +25,10 @@ namespace file_system {
 
 	return result;
     }
+
+    internal std::string path_directory(std::string path) {
+	return path.substr(0, path.find_last_of(SLASH_CH));
+    }
 }
 
 #endif

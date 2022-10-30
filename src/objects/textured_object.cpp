@@ -1,14 +1,14 @@
 #include "textured_object.h"
 
 TexturedObject::TexturedObject(RawModel model, Shader shader, std::vector<ObjectTexture> textures) :
-    GameObject(model, shader), textures_(textures) {
+    GameObject(shader), textures_(textures), model_(model) {
     
     shader_.bind();
     for(int i = 0; i < textures_.size(); ++i) {
 	if(textures_[i].type == DIFFUSE) {
-	    shader_.setInteger("material.diffuse", textures_[i].type);
+	    shader_.setInteger("material.diffuse1", textures_[i].type);
 	} else if(textures_[i].type == SPECULAR) {
-	    shader_.setInteger("material.specular", textures_[i].type);
+	    shader_.setInteger("material.specular1", textures_[i].type);
 	}
     }
     

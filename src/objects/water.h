@@ -20,6 +20,8 @@ struct Water : public GameObject {
     Texture2D getRefractionTexture() const;
     
 private:
+    RawModel model_;
+    
     FrameBuffer reflection_frame_buffer_;
     Texture2D reflection_texture_;
     uint reflection_depth_buffer_;

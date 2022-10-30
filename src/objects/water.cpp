@@ -20,9 +20,9 @@ namespace {
 }
 
 Water::Water(ResourceLoader& loader) :
-    GameObject(loader.loadToVAO(
-		   primitives::plane_positions, primitives::plane_normals, primitives::plane_tex_coords),
-	       loader.loadVSFSShader(kWaterVSShaderFilePath.c_str(), kWaterFSShaderFilePath.c_str())),
+    GameObject(loader.loadVSFSShader(kWaterVSShaderFilePath.c_str(), kWaterFSShaderFilePath.c_str())),
+    model_(loader.loadToVAO(primitives::plane_positions, primitives::plane_normals,
+			    primitives::plane_tex_coords)),
     dudv_map_(loader.loadTexture(kDuDvMapFilePath.c_str())),
     normal_map_(loader.loadTexture(kNormalMapFilePath.c_str())) {
 

@@ -1,7 +1,7 @@
 #include "game_object.h"
 
-GameObject::GameObject(RawModel model, Shader shader) :
-    model_(model), shader_(shader), 
+GameObject::GameObject(Shader shader) :
+    shader_(shader), 
     position(glm::vec3(0.0f)), size(glm::vec3(1.0f)), rotation(glm::vec3(0.0f)) {}
 
 // void GameObject::draw(glm::mat4& projection, glm::mat4& view) {

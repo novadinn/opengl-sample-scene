@@ -2,11 +2,15 @@
 #include <GLFW/glfw3.h>
 
 #include "glm/gtc/type_ptr.hpp"
+
 #include "graphics/resource_loader.cpp"
 #include "graphics/raw_model.cpp"
+#include "graphics/indexed_model.cpp"
 #include "graphics/shader.cpp"
 #include "graphics/textures.cpp"
 #include "graphics/frame_buffer.cpp"
+#include "graphics/mesh.cpp"
+
 #include "objects/directional_light.cpp"
 #include "objects/spot_light.cpp"
 #include "objects/point_light.cpp"
@@ -16,6 +20,8 @@
 #include "objects/cube_map.cpp"
 #include "objects/flashlight.cpp"
 #include "objects/water.cpp"
+#include "objects/model.cpp"
+
 #include "camera.cpp"
 #include "keyboard.cpp"
 #include "platform.h"
@@ -102,6 +108,8 @@ int main() {
     CubeMap cube_map(loader);
     Water water(loader);
     water.position = glm::vec3(0.0f, -0.5f, 0.0f);
+
+    Model model(loader, main_shader, file_system::join("objects\\backpack\\backpack.obj"));
     
     const glm::vec4 up_clip_plane(0.0f, -1.0f, 0.0f, water.position.y);
     // TODO: add those to all shaders (except water)!
@@ -152,6 +160,8 @@ int main() {
 	    cube.draw(projection, view, global_camera.position, dir_light, *spot_light, point_light);
 	    plane.draw(projection, view, global_camera.position, dir_light, *spot_light, point_light);
 
+	    model.draw(projection, view);
+	    
 	    view = glm::mat4(glm::mat3(global_camera.getViewMatrix()));
 	    cube_map.draw(projection, view);
 	};

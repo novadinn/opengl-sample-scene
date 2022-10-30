@@ -17,6 +17,7 @@ struct TexturedObject : public GameObject {
     
 private:
     std::vector<ObjectTexture> textures_;
+    RawModel model_;
 };
 
 #endif

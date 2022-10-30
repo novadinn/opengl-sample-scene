@@ -5,6 +5,8 @@
 #include <string>
 
 #include "raw_model.h"
+#include "indexed_model.h"
+#include "vertex.h"
 #define STB_IMAGE_STATIC
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -15,6 +17,7 @@
 struct ResourceLoader {
     RawModel loadToVAO(std::vector<float> positions, std::vector<float> normals, std::vector<float> tex_coords);
     RawModel loadToVAO(std::vector<float> positions, int dimension);
+    IndexedModel setupMeshVAO(std::vector<Vertex> vertices, std::vector<uint> indices);
     
     Texture2D loadTexture(const char *file);
     Texture2D createTextureAttachment(int width, int height);

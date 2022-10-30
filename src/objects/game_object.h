@@ -4,12 +4,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "../graphics/raw_model.h"
 #include "../graphics/shader.h"
 #include "../graphics/textures.h"
 
 struct GameObject {
-    GameObject(RawModel model, Shader shader);
+    GameObject(Shader shader);
     virtual ~GameObject() {};
     
     glm::vec3 position;
@@ -17,7 +16,6 @@ struct GameObject {
     glm::vec3 rotation; // FIXME: use a quaternion instead
 
 protected:
-    RawModel model_;
     Shader shader_;
 };
 
