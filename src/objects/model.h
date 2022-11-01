@@ -15,7 +15,10 @@
 struct Model : public GameObject {
     Model(ResourceLoader& loader, Shader shader, std::string const &path);
 
-    void draw(glm::mat4& projection, glm::mat4& view);
+    // TODO: add separate function useLight()
+    virtual void draw(glm::mat4& projection, glm::mat4& view,
+	      glm::vec3& view_pos, DirectionalLight& dir_light,
+	      SpotLight& spot_light, PointLight& point_lighto);
     
 private:
     struct LoadedTexture {
@@ -29,8 +32,10 @@ private:
     std::vector<ObjectTexture> loadMaterialTextures(ResourceLoader& loader, aiMaterial *mat, aiTextureType type);
     
     std::vector<LoadedTexture> textures_loaded_;
-    std::vector<Mesh> meshes_;
     std::string directory_;
+
+protected:
+    std::vector<Mesh> meshes_;
 };
 
 #endif

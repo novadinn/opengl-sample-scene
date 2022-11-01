@@ -4,12 +4,26 @@ TexturedObject::TexturedObject(RawModel model, Shader shader, std::vector<Object
     GameObject(shader), textures_(textures), model_(model) {
     
     shader_.bind();
+    unsigned int n_diffuse = 1;
+    unsigned int n_specular = 1;
+    // unsigned int n_normal = 1;
+    // unsigned int n_height = 1;
     for(int i = 0; i < textures_.size(); ++i) {
+	std::string number;
+	std::string name;
 	if(textures_[i].type == DIFFUSE) {
-	    shader_.setInteger("material.diffuse1", textures_[i].type);
+	    number = std::to_string(n_diffuse++);
+	    name = "material.diffuse";
 	} else if(textures_[i].type == SPECULAR) {
-	    shader_.setInteger("material.specular1", textures_[i].type);
+	    number = std::to_string(n_specular++);
+	    name = "material.specular";
 	}
+	// else if(name == "texture_normal")
+	//     number = std::to_string(n_normal++);
+	//  else if(name == "texture_height")
+	//     number = std::to_string(n_height++);
+
+	shader.setInteger((name+number).c_str(), i);
     }
     
     shader_.setFloat("material.shininess", 32.0f);
@@ -30,13 +44,8 @@ void TexturedObject::draw(glm::mat4& projection, glm::mat4& view,
 
     shader_.bind();
     for(int i = 0; i < textures_.size(); ++i) {
-	if(textures_[i].type == DIFFUSE) {
-	    Texture2D::activate(textures_[i].type);
-	    textures_[i].texture.bind();
-	} else if(textures_[i].type == SPECULAR) {
-	    Texture2D::activate(textures_[i].type);
-	    textures_[i].texture.bind();
-	}
+	Texture2D::activate(i);
+	textures_[i].texture.bind();
     }
     
     model_.bind();

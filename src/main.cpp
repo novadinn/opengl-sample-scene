@@ -21,12 +21,14 @@
 #include "objects/flashlight.cpp"
 #include "objects/water.cpp"
 #include "objects/model.cpp"
+#include "objects/grass.cpp"
 
 #include "camera.cpp"
 #include "keyboard.cpp"
 #include "platform.h"
 #include "primitives.h"
 #include "file_system.h"
+#include "error_logging.h"
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
@@ -71,7 +73,7 @@ int main() {
         return -1;
     }
 
-    glEnable(GL_DEPTH_TEST);
+    GL_CHECK(glEnable(GL_DEPTH_TEST));
 
     ResourceLoader loader;
     
@@ -90,6 +92,7 @@ int main() {
     Shader main_shader = loader.loadVSFSShader(
 	file_system::join("shaders\\main_vert.glsl").c_str(),
 	file_system::join("shaders\\main_frag.glsl").c_str());
+    // TODO: add tesselation shader stage
     
     Flashlight flashlight;
     
@@ -109,7 +112,9 @@ int main() {
     Water water(loader);
     water.position = glm::vec3(0.0f, -0.5f, 0.0f);
 
-    Model model(loader, main_shader, file_system::join("objects\\backpack\\backpack.obj"));
+    Grass grass(loader);
+    grass.position = glm::vec3(0.0f, 0.0f, 5.0f);
+    grass.size = glm::vec3(0.05f, 0.05f, 0.05f);
     
     const glm::vec4 up_clip_plane(0.0f, -1.0f, 0.0f, water.position.y);
     // TODO: add those to all shaders (except water)!
@@ -133,6 +138,8 @@ int main() {
 
 	// update
 	keyboard.updateKeyStates(window);
+
+	grass.update(global_delta_time);
 	
 	if(keyboard.isKeyDown(GLFW_KEY_ESCAPE))
 	    glfwSetWindowShouldClose(window, true);
@@ -160,7 +167,7 @@ int main() {
 	    cube.draw(projection, view, global_camera.position, dir_light, *spot_light, point_light);
 	    plane.draw(projection, view, global_camera.position, dir_light, *spot_light, point_light);
 
-	    model.draw(projection, view);
+	    grass.draw(projection, view, global_camera.position, dir_light, *spot_light, point_light);
 	    
 	    view = glm::mat4(glm::mat3(global_camera.getViewMatrix()));
 	    cube_map.draw(projection, view);

@@ -12,7 +12,8 @@ Model::Model(ResourceLoader& loader, Shader shader, std::string const &path) :
     loadModel(loader, path);
 }
 
-void Model::draw(glm::mat4& projection, glm::mat4& view) {
+void Model::draw(glm::mat4& projection, glm::mat4& view, glm::vec3& view_pos, DirectionalLight& dir_light,
+		 SpotLight& spot_light, PointLight& point_light) {
     shader_.bind();
     
     glm::mat4 model = glm::mat4(1.0f);
@@ -27,9 +28,35 @@ void Model::draw(glm::mat4& projection, glm::mat4& view) {
     shader_.setMatrix4("projection", projection);
     shader_.setMatrix4("view", view);
     shader_.setMatrix4("model", model);
+
+    shader_.setVector3f("viewPos", view_pos);
+    shader_.setVector3f("dirLight.direction", dir_light.direction);
+    shader_.setVector3f("dirLight.ambient", dir_light.ambient);
+    shader_.setVector3f("dirLight.diffuse", dir_light.diffuse);
+    shader_.setVector3f("dirLight.specular", dir_light.specular);
+
+    shader_.setVector3f("spotLight.position", spot_light.position);
+    shader_.setVector3f("spotLight.direction", spot_light.direction);
+    shader_.setVector3f("spotLight.ambient", spot_light.ambient);
+    shader_.setVector3f("spotLight.diffuse", spot_light.diffuse);
+    shader_.setVector3f("spotLight.specular", spot_light.specular);
+    shader_.setFloat("spotLight.constant", spot_light.constant);
+    shader_.setFloat("spotLight.linear", spot_light.linear);
+    shader_.setFloat("spotLight.quadratic", spot_light.quadratic);
+    shader_.setFloat("spotLight.cutOff", spot_light.cutoff);
+    shader_.setFloat("spotLight.outerCutOff", spot_light.outer_cutoff);
+    
+    std::string number = std::to_string(point_light.index);
+    shader_.setVector3f(("pointLights[" + number + "].position").c_str(), point_light.position);
+    shader_.setVector3f(("pointLights[" + number + "].ambient").c_str(), point_light.ambient);
+    shader_.setVector3f(("pointLights[" + number + "].diffuse").c_str(), point_light.diffuse);
+    shader_.setVector3f(("pointLights[" + number + "].specular").c_str(), point_light.specular);
+    shader_.setFloat(("pointLights[" + number + "].constant").c_str(), point_light.constant);
+    shader_.setFloat(("pointLights[" + number + "].linear").c_str(), point_light.linear);
+    shader_.setFloat(("pointLights[" + number + "].quadratic").c_str(), point_light.quadratic);
     
     for(int i = 0; i < meshes_.size(); ++i)
-	meshes_[i].draw(shader_);
+	meshes_[i].draw();
 
     Shader::unbind();
 }
@@ -86,15 +113,15 @@ Mesh Model::processMesh(ResourceLoader& loader, aiMesh *mesh, const aiScene *sce
 	    vec.y = mesh->mTextureCoords[0][i].y;
 	    vertex.tex_coords = vec;
 
-	    // vector.x = mesh->mTangents[i].x;
-	    // vector.y = mesh->mTangents[i].y;
-	    // vector.z = mesh->mTangents[i].z;
-	    // vertex.Tangent = vector;
+	    vector.x = mesh->mTangents[i].x;
+	    vector.y = mesh->mTangents[i].y;
+	    vector.z = mesh->mTangents[i].z;
+	    vertex.tangent = vector;
 
-	    // vector.x = mesh->mBitangents[i].x;
-	    // vector.y = mesh->mBitangents[i].y;
-	    // vector.z = mesh->mBitangents[i].z;
-	    // vertex.Bitangent = vector;
+	    vector.x = mesh->mBitangents[i].x;
+	    vector.y = mesh->mBitangents[i].y;
+	    vector.z = mesh->mBitangents[i].z;
+	    vertex.bitangent = vector;
 	}
 	else {
 	    vertex.tex_coords = glm::vec2(0.0f, 0.0f);
@@ -123,7 +150,7 @@ Mesh Model::processMesh(ResourceLoader& loader, aiMesh *mesh, const aiScene *sce
     // std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
     // textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
         
-    return Mesh(loader, vertices, indices, textures);
+    return Mesh(loader, shader_, vertices, indices, textures);
 }
 
 std::vector<ObjectTexture> Model::loadMaterialTextures(ResourceLoader& loader, aiMaterial *mat,
