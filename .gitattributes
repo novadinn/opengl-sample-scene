@@ -1,5 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
 
-*.glsl linguist-detectable
+*.glsl linguist-detectable=true
 *.glsl linguist-language=GLSL
