@@ -9,15 +9,25 @@ namespace {
 
     const std::string kGrassPlaneFilePath = file_system::join("objects\\grass\\grass_plane.obj");
     const std::string kWindDistortionFilePath = file_system::join("img\\textures\\grass\\wind_distortion.png");
+
+    const std::string kPlaneVSShaderFilePath = file_system::join("shaders\\default_vert.glsl").c_str();
+    const std::string kPlaneFSShaderFilePath = file_system::join("shaders\\default_frag.glsl").c_str();
+
+    const float kBendRotationMin = 0.0f;
+    const float kBendRotationMax = 1.0f;
+    const float kBladeCurvatureAmountMin = 1.0f;
+    const float kBladeCurvatureAmountMax = 4.0f;
 }
 
 Grass::Grass(ResourceLoader& loader) :
-    Model(loader, loader.loadVSGSFSShader(kGrassVSShaderFilePath.c_str(),
-					  kGrassGSShaderFilePath.c_str(),
-					  kGrassFSShaderFilePath.c_str()),
-	  kGrassPlaneFilePath),
+    GameObject(loader.loadVSGSFSShader(kGrassVSShaderFilePath.c_str(),
+				       kGrassGSShaderFilePath.c_str(),
+				       kGrassFSShaderFilePath.c_str())),
+    grass_model_(loader, shader_, kGrassPlaneFilePath),
+    plane_shader_(loader.loadVSFSShader(kPlaneVSShaderFilePath.c_str(),
+					kPlaneFSShaderFilePath.c_str())),
+    plane_model_(loader, plane_shader_, kGrassPlaneFilePath),
     distortion_map_(loader.loadTexture(kWindDistortionFilePath.c_str())) {
-    
     shader_.bind();
     shader_.setInteger("windDistortionMap", 0);
     Shader::unbind();
@@ -25,6 +35,11 @@ Grass::Grass(ResourceLoader& loader) :
 
 void Grass::update(float delta_time) {
     time += delta_time;
+
+    // TODO: better to just add setters and getters
+    bend_rotation_random = glm::clamp(bend_rotation_random, kBendRotationMin, kBendRotationMax);
+    blade_curvature_amount = glm::clamp(blade_curvature_amount, kBladeCurvatureAmountMin,
+					kBladeCurvatureAmountMax);
 }
 
 void Grass::draw(glm::mat4& projection, glm::mat4& view,
@@ -59,11 +74,25 @@ void Grass::draw(glm::mat4& projection, glm::mat4& view,
     shader_.setVector2f("windDistortionMapOffset", wind_distortion_map_offset);
     shader_.setFloat("windStrength", wind_strength);
     shader_.setFloat("time", time);
-    
-    for(int i = 0; i < meshes_.size(); ++i)
-	meshes_[i].draw();
 
+    shader_.setFloat("bladeForward", blade_forward);
+    shader_.setFloat("bladeCurvatureAmount", blade_curvature_amount);
+    
+    grass_model_.draw();
+    
     Texture2D::deactivate();
     Texture2D::unbind();
+    Shader::unbind();
+
+    plane_shader_.bind();
+
+    plane_shader_.setMatrix4("projection", projection);
+    plane_shader_.setMatrix4("view", view);
+    plane_shader_.setMatrix4("model", model);
+
+    plane_shader_.setVector3f("color", plane_color);
+    
+    plane_model_.draw();
+
     Shader::unbind();
 }

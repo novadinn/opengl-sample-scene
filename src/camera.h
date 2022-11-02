@@ -24,8 +24,10 @@ public:
     void moveBackward(float delta_time);
     void moveLeft(float delta_time);
     void moveRight(float delta_time);
-    void moveUp(float delta_time);
-    void moveDown(float delta_time);
+    void moveGlobalUp(float delta_time);
+    void moveGlobalDown(float delta_time);
+    void moveGlobalForward(float delta_time);
+    void moveGlobalBackward(float delta_time);
     void processMouseMovement(float x_offset, float y_offset, GLboolean constrain_pitch = true);
     void processMouseScroll(float y_offset);
 

@@ -10,6 +10,7 @@
 #include "graphics/textures.cpp"
 #include "graphics/frame_buffer.cpp"
 #include "graphics/mesh.cpp"
+#include "graphics/model.cpp"
 
 #include "objects/directional_light.cpp"
 #include "objects/spot_light.cpp"
@@ -20,7 +21,6 @@
 #include "objects/cube_map.cpp"
 #include "objects/flashlight.cpp"
 #include "objects/water.cpp"
-#include "objects/model.cpp"
 #include "objects/grass.cpp"
 
 #include "camera.cpp"
@@ -114,7 +114,7 @@ int main() {
 
     Grass grass(loader);
     grass.position = glm::vec3(0.0f, 0.0f, 5.0f);
-    grass.size = glm::vec3(0.05f, 0.05f, 0.05f);
+    // grass.size = glm::vec3(0.05f, 0.05f, 0.05f);
     
     const glm::vec4 up_clip_plane(0.0f, -1.0f, 0.0f, water.position.y);
     // TODO: add those to all shaders (except water)!
@@ -143,12 +143,12 @@ int main() {
 	
 	if(keyboard.isKeyDown(GLFW_KEY_ESCAPE))
 	    glfwSetWindowShouldClose(window, true);
-	if(keyboard.isKeyPressed(GLFW_KEY_W)) global_camera.moveForward(global_delta_time);
-	if(keyboard.isKeyPressed(GLFW_KEY_S)) global_camera.moveBackward(global_delta_time);
+	if(keyboard.isKeyPressed(GLFW_KEY_W)) global_camera.moveGlobalForward(global_delta_time);
+	if(keyboard.isKeyPressed(GLFW_KEY_S)) global_camera.moveGlobalBackward(global_delta_time);
 	if(keyboard.isKeyPressed(GLFW_KEY_A)) global_camera.moveLeft(global_delta_time);
 	if(keyboard.isKeyPressed(GLFW_KEY_D)) global_camera.moveRight(global_delta_time);
-	if(keyboard.isKeyPressed(GLFW_KEY_SPACE)) global_camera.moveUp(global_delta_time);
-	if(keyboard.isKeyPressed(GLFW_KEY_LEFT_CONTROL)) global_camera.moveDown(global_delta_time);
+	if(keyboard.isKeyPressed(GLFW_KEY_SPACE)) global_camera.moveGlobalUp(global_delta_time);
+	if(keyboard.isKeyPressed(GLFW_KEY_LEFT_CONTROL)) global_camera.moveGlobalDown(global_delta_time);
 	if(keyboard.isKeyDown(GLFW_KEY_F)) flashlight.toggle();
 
 	cube_map.update(global_delta_time);

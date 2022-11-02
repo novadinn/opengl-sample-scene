@@ -1,10 +1,7 @@
 #version 330 core
 
 in GS_OUT {
-    vec3 Normal;
-    vec3 FragPos;
     vec2 TexCoords;
-    mat3 TBN;
 } gs_in;
 
 out vec4 color;

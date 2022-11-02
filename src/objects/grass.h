@@ -1,30 +1,39 @@
 #ifndef GRASS_H
 #define GRASS_H
 
-#include "model.h"
+#include "../graphics/model.h"
+#include "game_object.h"
 
 // NOTE: possibly rename to terrain
-struct Grass : public Model {
+struct Grass : public GameObject {
     Grass(ResourceLoader& loader);
 
     void update(float delta_time);
     void draw(glm::mat4& projection, glm::mat4& view,
 	      glm::vec3& view_pos, DirectionalLight& dir_light,
-	      SpotLight& spot_light, PointLight& point_light) override;
+	      SpotLight& spot_light, PointLight& point_light);
 
-    float bend_rotation_random = 0.2f; // NOTE: Range from 0 to 1
-    float blade_width = 0.5f;
-    float blade_width_random = 0.2f;
-    float blade_height = 5.0f;
-    float blade_height_random = 3.0f;
+    float bend_rotation_random = 0.2f;
+    float blade_width = 0.05f;
+    float blade_width_random = 0.02f;
+    float blade_height = 0.5f;
+    float blade_height_random = 0.3f;
 
-    glm::vec2 wind_frequency = glm::vec2(0.05f, 0.05f);
+    glm::vec2 wind_frequency = glm::vec2(0.01f, 0.01f);
     glm::vec2 wind_distortion_map_tiling = glm::vec2(1.0f, 1.0f);
     glm::vec2 wind_distortion_map_offset = glm::vec2(0.0f, 0.0f);
     float wind_strength = 1.0f;
     float time;
 
+    float blade_forward = 0.38f;
+    float blade_curvature_amount = 2.0f;
+    
+    glm::vec3 plane_color = glm::vec3(0.2f, 0.7f, 0.01);
+
 private:
+    Model grass_model_;
+    Shader plane_shader_; // TODO: connect those 2 in 1 class
+    Model plane_model_;
     Texture2D distortion_map_;
 };
 

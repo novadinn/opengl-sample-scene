@@ -56,14 +56,26 @@ void Camera::moveRight(float delta_time) {
     position += right * velocity;
 }
 
-void Camera::moveUp(float delta_time) {
+void Camera::moveGlobalUp(float delta_time) {
     float velocity = movement_speed * delta_time;
     position += world_up * velocity;
 }
 
-void Camera::moveDown(float delta_time) {
+void Camera::moveGlobalDown(float delta_time) {
     float velocity = movement_speed * delta_time;
     position -= world_up * velocity;
+}
+
+void Camera::moveGlobalForward(float delta_time) {
+    float velocity = movement_speed * delta_time;
+    glm::vec3 new_front = glm::cross(world_up, right);
+    position += new_front * velocity;
+}
+
+void Camera::moveGlobalBackward(float delta_time) {
+    float velocity = movement_speed * delta_time;
+    glm::vec3 new_front = glm::cross(world_up, right);
+    position -= new_front * velocity;
 }
 
 void Camera::processMouseMovement(float x_offset, float y_offset, GLboolean constrain_pitch) {

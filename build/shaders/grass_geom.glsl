@@ -1,6 +1,6 @@
 #version 330 core
 layout (triangles) in;
-layout (triangle_strip, max_vertices = 7) out; // blade_segment_count * 2 + 1
+layout (triangle_strip, max_vertices = 7) out;
 
 in VS_OUT {
     vec3 Normal;
@@ -10,10 +10,7 @@ in VS_OUT {
 } vs_in[];
 
 out GS_OUT {
-    vec3 Normal;
-    vec3 FragPos;
     vec2 TexCoords;
-    mat3 TBN;
 } gs_out;
 
 uniform mat4 model;
@@ -33,11 +30,16 @@ uniform vec2 windDistortionMapOffset;
 uniform float windStrength;
 uniform float time;
 
+uniform float bladeForward;
+uniform float bladeCurvatureAmount;
+// TODO: add lighting calculations
+
 #define PI 3.1415926538
 
 vec4 objectToClipPos(vec4 pos);
-
 mat3 angleAxisMat3(float angle, vec3 axis);
+
+vec4 generateGrassVertex(vec4 vertexPosition, float width, float height, float forward, mat3 transformMatrix);
 
 uint hash(uint x);
 uint hash(uvec2 v);
@@ -48,64 +50,43 @@ float random(float x);
 float random(vec2 v);
 float random(vec3 v);
 float random(vec4 v);
-mat3 mul(mat3 l, mat3 r) { // TODO: remove this
-    return l * r;
-}
-
-// geometryOutput generateGrassVertex(vec3 vertexPosition, float width, float height, vec2 uv, mat3 transformMatrix) {
-//     vec3 tangentPoint = vec3(width, 0, height);
-
-//     vec3 localPosition = vertexPosition + mul(transformMatrix, tangentPoint);
-//     return VertexOutput(localPosition, uv);
-// }
 
 void main() {
     vec4 startPos = gl_in[0].gl_Position;
     mat3 facingRotationMatrix = angleAxisMat3(random(startPos) * (2 * PI), vec3(0.0, 0.0, 1.0));
     mat3 bendRotationMatrix = angleAxisMat3(random(startPos.zzx) * bendRotationRandom * PI * 0.5, vec3(-1, 0, 0));
-
+    mat3 TBN = vs_in[0].TBN;
+    
     vec2 uv = startPos.xz * windDistortionMapTiling + windDistortionMapOffset + windFrequency * time;
     vec2 windSample = (texture(windDistortionMap, uv).xy * 2 - 1) * windStrength;
     vec3 wind = normalize(vec3(windSample.x, windSample.y, 0.0));
     mat3 windRotation = angleAxisMat3(PI * windSample.x, wind);
+
+    mat3 transformationMatrixFacing = TBN * facingRotationMatrix;
+    mat3 transformationMatrix = TBN * windRotation * facingRotationMatrix * bendRotationMatrix;
     
     float height = (random(startPos.zyx) * 2.0 - 1.0) * bladeHeightRandom + bladeHeight;
     float width = (random(startPos.xzy) * 2.0 - 1.0) * bladeWidthRandom + bladeWidth;
-    vec3 positions[] = vec3[](vec3(width, 0.0, 0.0), vec3(-width, 0.0, 0.0), vec3(0.0, 0.0, height));
-    vec2 texCoords[] = vec2[](vec2(0.0, 0.0), vec2(1.0, 0.0), vec2(0.5, 1.0));
+    float forward = random(startPos.yyz) * bladeForward;
 
-    int i = 0;
-    gs_out.Normal = vs_in[i].Normal;
-    gs_out.FragPos = vs_in[i].FragPos;
-    gs_out.TexCoords = texCoords[i];
-    gs_out.TBN = vs_in[i].TBN;
+    for(int i = 0; i < 3; ++i) {
+	float t = float(i) / 3.0;
+	float segmentHeight = height * t;
+	float segmentWidth = width * (1 - t);
+	float segmentForward = pow(t, bladeCurvatureAmount) * forward;
+	mat3 transformMatrix = i == 0 ? transformationMatrixFacing : transformationMatrix;
 	
-    mat3 transformationMatrixFacing = mul(vs_in[i].TBN, facingRotationMatrix);
-    vec3 currentPos = transformationMatrixFacing * positions[i];
-    gl_Position = objectToClipPos(vec4(currentPos, 0.0) + startPos);
-    EmitVertex();
+	gs_out.TexCoords = vec2(0.0, t);
+	gl_Position = generateGrassVertex(startPos, segmentWidth, segmentHeight, segmentForward, transformMatrix);
+	EmitVertex();
 
-    i = 1;
-    gs_out.Normal = vs_in[i].Normal;
-    gs_out.FragPos = vs_in[i].FragPos;
-    gs_out.TexCoords = texCoords[i];
-    gs_out.TBN = vs_in[i].TBN;
-	
-    transformationMatrixFacing = mul(vs_in[i].TBN, facingRotationMatrix);
-    currentPos = transformationMatrixFacing * positions[i];
-    gl_Position = objectToClipPos(vec4(currentPos, 0.0) + startPos);
-    EmitVertex();
+	gs_out.TexCoords = vec2(1.0, t);
+	gl_Position = generateGrassVertex(startPos, -segmentWidth, segmentHeight, segmentForward, transformMatrix);
+	EmitVertex();
+    }
 
-    i = 2;
-    gs_out.Normal = vs_in[i].Normal;
-    gs_out.FragPos = vs_in[i].FragPos;
-    gs_out.TexCoords = texCoords[i];
-    gs_out.TBN = vs_in[i].TBN;
-	
-    mat3 transformationMatrix = mul(mul(mul(vs_in[i].TBN, windRotation),
-					facingRotationMatrix), bendRotationMatrix);
-    currentPos = transformationMatrix * positions[i];
-    gl_Position = objectToClipPos(vec4(currentPos, 0.0) + startPos);
+    gs_out.TexCoords = vec2(0.5, 1.0);
+    gl_Position = generateGrassVertex(startPos, 0.0, height, forward, transformationMatrix);
     EmitVertex();
     
     EndPrimitive();
@@ -130,6 +111,13 @@ mat3 angleAxisMat3(float angle, vec3 axis) {
         t * x * y + s * z,  t * y * y + c,      t * y * z - s * x,
         t * x * z - s * y,  t * y * z + s * x,  t * z * z + c
     );
+}
+
+vec4 generateGrassVertex(vec4 vertexPosition, float width, float height, float forward, mat3 transformMatrix) {
+    vec3 tangentPoint = vec3(width, forward, height);
+
+    vec3 localPosition = vertexPosition.xyz + (transformMatrix * tangentPoint);
+    return objectToClipPos(vec4(localPosition, vertexPosition.w));
 }
 
 uint hash(uint x) {
