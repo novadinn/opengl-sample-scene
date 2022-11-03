@@ -33,15 +33,14 @@ TexturedObject::TexturedObject(RawModel model, Shader shader, std::vector<Object
 void TexturedObject::draw(glm::mat4& projection, glm::mat4& view,
 			  glm::vec3& view_pos, DirectionalLight& dir_light,
 			  SpotLight& spot_light, PointLight& point_light) {
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, position);
-    model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.5f * size.z));
-    model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    model = glm::rotate(model, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    model = glm::rotate(model, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-    model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, -0.5f * size.z));
-    model = glm::scale(model, size);
+    
+    prepareDrawing();
+    setMVP(projection, view);
+    draw(view_pos, dir_light, spot_light, point_light);
+    endDrawing();    
+}
 
+void TexturedObject::prepareDrawing() {
     shader_.bind();
     for(int i = 0; i < textures_.size(); ++i) {
 	Texture2D::activate(i);
@@ -51,12 +50,11 @@ void TexturedObject::draw(glm::mat4& projection, glm::mat4& view,
     model_.bind();
     RawModel::enableAttribute(0);
     RawModel::enableAttribute(1);
-    RawModel::enableAttribute(2);
+    RawModel::enableAttribute(2);    
+}
 
-    shader_.setMatrix4("projection", projection);
-    shader_.setMatrix4("view", view);
-    shader_.setMatrix4("model", model);
-
+void TexturedObject::draw(glm::vec3& view_pos, DirectionalLight& dir_light,
+			  SpotLight& spot_light, PointLight& point_light) {
     shader_.setVector3f("viewPos", view_pos);
     shader_.setVector3f("dirLight.direction", dir_light.direction);
     shader_.setVector3f("dirLight.ambient", dir_light.ambient);
@@ -84,7 +82,9 @@ void TexturedObject::draw(glm::mat4& projection, glm::mat4& view,
     shader_.setFloat(("pointLights[" + number + "].quadratic").c_str(), point_light.quadratic);
     
     glDrawArrays(GL_TRIANGLES, 0, model_.getVertexCount());
+}
 
+void TexturedObject::endDrawing() {
     RawModel::disableAttribute(0);
     RawModel::disableAttribute(1);
     RawModel::disableAttribute(2);

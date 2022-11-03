@@ -14,8 +14,11 @@ struct TexturedObject : public GameObject {
     void draw(glm::mat4& projection, glm::mat4& view,
 	      glm::vec3& view_pos, DirectionalLight& dir_light,
 	      SpotLight& spot_light, PointLight& point_light);
-    
 private:
+    void draw(glm::vec3& view_pos, DirectionalLight& dir_light, SpotLight& spot_light, PointLight& point_light);
+    void prepareDrawing() override;
+    void endDrawing() override;
+    
     std::vector<ObjectTexture> textures_;
     RawModel model_;
 };

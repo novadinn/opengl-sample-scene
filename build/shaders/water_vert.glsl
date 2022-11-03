@@ -8,7 +8,6 @@ out VS_OUT {
     vec4 clipSpace;
     vec2 texCoords;
     vec3 toCameraVector;
-    vec3 fromLightVector;
 } vs_out;
 
 uniform mat4 model;
@@ -27,6 +26,5 @@ void main() {
     vs_out.clipSpace = projection * view * worldPosition;
     vs_out.texCoords = vec2(inTexCoords.x / 2.0 + 0.0, inTexCoords.y / 2.0 + 0.5) * tiling;
     vs_out.toCameraVector = cameraPosition - worldPosition.xyz;
-    vs_out.fromLightVector = worldPosition.xyz - lightPosition;
     gl_Position = vs_out.clipSpace;
 }

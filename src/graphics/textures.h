@@ -46,4 +46,11 @@ struct ObjectTexture {
     Texture2D texture;
 };
 
+struct TextureData {
+    uint wrap_s = GL_REPEAT;
+    uint wrap_t = GL_REPEAT;
+    uint filter_min = GL_LINEAR;
+    uint filter_max = GL_LINEAR;
+};
+
 #endif

@@ -11,15 +11,21 @@ struct Water : public GameObject {
     void bindRefractionFrameBuffer();
     void unbindCurrentFrameBuffer();
 
-    // TODO: add all lighting types to the water shader
-    void draw(glm::mat4& projection, glm::mat4& view,
-	      glm::vec3 camera_position, glm::vec3 light_position, glm::vec3 light_color);
+    void draw(glm::mat4& projection, glm::mat4& view, glm::vec3 camera_position);
     void update(float delta_time);
     
     Texture2D getReflectionTexture() const;
     Texture2D getRefractionTexture() const;
     
+    float wave_strength = 0.02f;
+    float shine_damper = 20.0f;
+    float reflectivity = 0.6f;
+    
 private:
+    void prepareDrawing() override;
+    void draw(glm::vec3 camera_position);
+    void endDrawing() override;
+    
     RawModel model_;
     
     FrameBuffer reflection_frame_buffer_;
@@ -32,6 +38,7 @@ private:
 
     Texture2D dudv_map_;
     Texture2D normal_map_;
+
     float move_factor_;
 };
 

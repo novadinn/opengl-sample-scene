@@ -35,21 +35,17 @@ Grass::Grass(ResourceLoader& loader) :
 
 void Grass::update(float delta_time) {
     time += delta_time;
-
-    // TODO: better to just add setters and getters
-    bend_rotation_random = glm::clamp(bend_rotation_random, kBendRotationMin, kBendRotationMax);
-    blade_curvature_amount = glm::clamp(blade_curvature_amount, kBladeCurvatureAmountMin,
-					kBladeCurvatureAmountMax);
 }
 
-void Grass::draw(glm::mat4& projection, glm::mat4& view,
-		 glm::vec3& view_pos, DirectionalLight& dir_light,
-		 SpotLight& spot_light, PointLight& point_light) {
+void Grass::draw(glm::mat4& projection, glm::mat4& view) {
 
-    shader_.bind();
-    Texture2D::activate(0);
-    distortion_map_.bind();
-    
+    prepareDrawing();
+    setMVP(projection, view);
+    draw();
+    endDrawing();    
+
+    plane_shader_.bind(); // TODO: remove repititions
+
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, position);
     model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.5f * size.z));
@@ -62,8 +58,42 @@ void Grass::draw(glm::mat4& projection, glm::mat4& view,
     shader_.setMatrix4("projection", projection);
     shader_.setMatrix4("view", view);
     shader_.setMatrix4("model", model);
+    plane_shader_.setMatrix4("projection", projection);
+    plane_shader_.setMatrix4("view", view);
+    plane_shader_.setMatrix4("model", model);
 
-    shader_.setFloat("bendRotationRandom", bend_rotation_random);
+    plane_shader_.setVector3f("color", plane_color);
+    
+    plane_model_.draw();
+
+    Shader::unbind();
+}
+
+void Grass::setBendRotationRandom(float val) {
+    bend_rotation_random_ = glm::clamp(bend_rotation_random_+val, kBendRotationMin, kBendRotationMax);
+}
+
+float Grass::getBendRotationRandom() const {
+    return bend_rotation_random_;
+}
+
+void Grass::setBladeCurvatureAmount(float val) {
+    blade_curvature_amount_ = glm::clamp(blade_curvature_amount_+val, kBladeCurvatureAmountMin,
+					kBladeCurvatureAmountMax);
+}
+
+float Grass::getBladeCurvatureAmount() const {
+    return blade_curvature_amount_;
+}
+
+void Grass::prepareDrawing() {
+    shader_.bind();
+    Texture2D::activate(0);
+    distortion_map_.bind();
+}
+
+void Grass::draw() {
+    shader_.setFloat("bendRotationRandom", bend_rotation_random_);
     shader_.setFloat("bladeWidth", blade_width);
     shader_.setFloat("bladeWidthRandom", blade_width_random);
     shader_.setFloat("bladeHeight", blade_height);
@@ -76,23 +106,13 @@ void Grass::draw(glm::mat4& projection, glm::mat4& view,
     shader_.setFloat("time", time);
 
     shader_.setFloat("bladeForward", blade_forward);
-    shader_.setFloat("bladeCurvatureAmount", blade_curvature_amount);
+    shader_.setFloat("bladeCurvatureAmount", blade_curvature_amount_);
     
     grass_model_.draw();
-    
+}
+
+void Grass::endDrawing() {
     Texture2D::deactivate();
     Texture2D::unbind();
-    Shader::unbind();
-
-    plane_shader_.bind();
-
-    plane_shader_.setMatrix4("projection", projection);
-    plane_shader_.setMatrix4("view", view);
-    plane_shader_.setMatrix4("model", model);
-
-    plane_shader_.setVector3f("color", plane_color);
-    
-    plane_model_.draw();
-
     Shader::unbind();
 }

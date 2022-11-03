@@ -9,11 +9,13 @@ struct Grass : public GameObject {
     Grass(ResourceLoader& loader);
 
     void update(float delta_time);
-    void draw(glm::mat4& projection, glm::mat4& view,
-	      glm::vec3& view_pos, DirectionalLight& dir_light,
-	      SpotLight& spot_light, PointLight& point_light);
+    void draw(glm::mat4& projection, glm::mat4& view);
 
-    float bend_rotation_random = 0.2f;
+    void setBendRotationRandom(float val);
+    float getBendRotationRandom() const;
+    void setBladeCurvatureAmount(float val);
+    float getBladeCurvatureAmount() const;
+    
     float blade_width = 0.05f;
     float blade_width_random = 0.02f;
     float blade_height = 0.5f;
@@ -26,15 +28,21 @@ struct Grass : public GameObject {
     float time;
 
     float blade_forward = 0.38f;
-    float blade_curvature_amount = 2.0f;
     
     glm::vec3 plane_color = glm::vec3(0.2f, 0.7f, 0.01);
 
 private:
+    void prepareDrawing() override;
+    void draw();
+    void endDrawing() override;
+    
     Model grass_model_;
     Shader plane_shader_; // TODO: connect those 2 in 1 class
     Model plane_model_;
     Texture2D distortion_map_;
+
+    float bend_rotation_random_ = 0.2f;
+    float blade_curvature_amount_ = 2.0f;
 };
 
 #endif

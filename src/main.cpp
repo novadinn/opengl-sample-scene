@@ -25,21 +25,19 @@
 
 #include "camera.cpp"
 #include "keyboard.cpp"
+#include "display.cpp"
 #include "platform.h"
 #include "primitives.h"
 #include "file_system.h"
 #include "error_logging.h"
-
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
 
 internal void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 internal void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 internal void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 global_variable Camera global_camera(glm::vec3(0.0f, 0.0f, 3.0f));
-global_variable float global_last_x = WINDOW_WIDTH / 2.0f;
-global_variable float global_last_y = WINDOW_HEIGHT / 2.0f;
+global_variable float global_last_x = Display::window_width / 2.0f;
+global_variable float global_last_y = Display::window_height / 2.0f;
 global_variable bool global_first_mouse = true;
 
 global_variable float global_delta_time = 0.0f;
@@ -55,7 +53,7 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "LearnOpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(Display::window_width, Display::window_height, "Scene", NULL, NULL);
     if (window == NULL) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -106,15 +104,13 @@ int main() {
     };
     TexturedObject cube(cube_model, main_shader, object_textures);
     cube.position = glm::vec3(3.0f, -1.0f, 0.0f);
-    TexturedObject plane(plane_model, main_shader, object_textures);
-    plane.position = glm::vec3(0.0f, -2.0f, 0.0f);
     CubeMap cube_map(loader);
     Water water(loader);
-    water.position = glm::vec3(0.0f, -0.5f, 0.0f);
-
+    water.position = glm::vec3(0.0f, -1.0f, 0.0f);
+    water.size = glm::vec3(10.0f);
+    
     Grass grass(loader);
-    grass.position = glm::vec3(0.0f, 0.0f, 5.0f);
-    // grass.size = glm::vec3(0.05f, 0.05f, 0.05f);
+    grass.position = glm::vec3(0.0f, -1.0f, 0.0f);
     
     const glm::vec4 up_clip_plane(0.0f, -1.0f, 0.0f, water.position.y);
     // TODO: add those to all shaders (except water)!
@@ -160,14 +156,13 @@ int main() {
 	    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	    glm::mat4 projection = global_camera.getProjectionMatrix((float)WINDOW_WIDTH, (float)WINDOW_HEIGHT,
-								 0.1f, 100.0f);
+	    glm::mat4 projection = global_camera.getProjectionMatrix((float)Display::window_width,
+								     (float)Display::window_height,
+								     Display::near_plane, Display::far_plane);
 	    glm::mat4 view = global_camera.getViewMatrix();
 	    
 	    cube.draw(projection, view, global_camera.position, dir_light, *spot_light, point_light);
-	    plane.draw(projection, view, global_camera.position, dir_light, *spot_light, point_light);
-
-	    grass.draw(projection, view, global_camera.position, dir_light, *spot_light, point_light);
+	    grass.draw(projection, view);
 	    
 	    view = glm::mat4(glm::mat3(global_camera.getViewMatrix()));
 	    cube_map.draw(projection, view);
@@ -201,10 +196,11 @@ int main() {
 
 	// basic rendering
 	render();
-	glm::mat4 projection = global_camera.getProjectionMatrix((float)WINDOW_WIDTH, (float)WINDOW_HEIGHT,
-								 0.1f, 100.0f);
+	glm::mat4 projection = global_camera.getProjectionMatrix((float)Display::window_width,
+								 (float)Display::window_height,
+								 Display::near_plane, Display::far_plane);
 	glm::mat4 view = global_camera.getViewMatrix();
-	water.draw(projection, view, global_camera.position, point_light.position, glm::vec3(1.0, 1.0, 1.0));
+	water.draw(projection, view, global_camera.position);
 	
         glfwSwapBuffers(window);
         glfwPollEvents();

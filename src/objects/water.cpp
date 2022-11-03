@@ -4,6 +4,7 @@
 
 #include "../file_system.h"
 #include "../primitives.h"
+#include "../display.h"
 
 namespace {
     const std::string kWaterVSShaderFilePath = file_system::join("shaders\\water_vert.glsl");
@@ -55,17 +56,29 @@ void Water::unbindCurrentFrameBuffer() {
     FrameBuffer::unbind();
 }
 
-void Water::draw(glm::mat4& projection, glm::mat4& view, glm::vec3 camera_position,
-		 glm::vec3 light_position, glm::vec3 light_color) {
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, position);
-    model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.5f * size.z));
-    model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    model = glm::rotate(model, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    model = glm::rotate(model, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-    model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, -0.5f * size.z));
-    model = glm::scale(model, size);
+void Water::draw(glm::mat4& projection, glm::mat4& view, glm::vec3 camera_position) {
 
+    prepareDrawing();
+    setMVP(projection, view);
+    draw(camera_position);
+    endDrawing();
+}
+
+void Water::update(float delta_time) {
+    move_factor_ += kMoveSpeed * delta_time;
+    move_factor_ = fmodf(move_factor_, 1);
+}
+
+Texture2D Water::getReflectionTexture() const {
+    return reflection_texture_;
+}
+
+Texture2D Water::getRefractionTexture() const {
+    return refraction_texture_;
+}
+
+
+void Water::prepareDrawing() {
     shader_.bind();
     Texture2D::activate(0);
     reflection_texture_.bind();
@@ -84,17 +97,21 @@ void Water::draw(glm::mat4& projection, glm::mat4& view, glm::vec3 camera_positi
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
-    shader_.setMatrix4("projection", projection);
-    shader_.setMatrix4("view", view);
-    shader_.setMatrix4("model", model);
-    shader_.setFloat("moveFactor", move_factor_);
+}
+
+void Water::draw(glm::vec3 camera_position) {
     shader_.setVector3f("cameraPosition", camera_position);
-    shader_.setVector3f("lightPosition", light_position);
-    shader_.setVector3f("lightColor", light_color);
+    shader_.setFloat("moveFactor", move_factor_);
+    shader_.setFloat("waveStrength", wave_strength);
+    shader_.setFloat("shineDamper", shine_damper);
+    shader_.setFloat("reflectivity", reflectivity);
+    shader_.setFloat("near", Display::near_plane);
+    shader_.setFloat("far", Display::far_plane);
     
     glDrawArrays(GL_TRIANGLES, 0, model_.getVertexCount());
+}
 
+void Water::endDrawing() {
     glDisable(GL_BLEND);
     
     RawModel::disableAttribute(0);
@@ -104,17 +121,4 @@ void Water::draw(glm::mat4& projection, glm::mat4& view, glm::vec3 camera_positi
     Texture2D::deactivate();
     Texture2D::unbind();
     Shader::unbind();
-}
-
-void Water::update(float delta_time) {
-    move_factor_ += kMoveSpeed * delta_time;
-    move_factor_ = fmodf(move_factor_, 1);
-}
-
-Texture2D Water::getReflectionTexture() const {
-    return reflection_texture_;
-}
-
-Texture2D Water::getRefractionTexture() const {
-    return refraction_texture_;
 }

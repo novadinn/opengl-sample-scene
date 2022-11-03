@@ -125,7 +125,7 @@ std::vector<ObjectTexture> Model::loadMaterialTextures(ResourceLoader& loader, a
 	if(!skip) {
 	    LoadedTexture texture;
 	    texture.object_texture.texture = loader.loadTexture(
-		file_system::join((directory_ + '\\' + str.data)).c_str()); 
+		file_system::join((directory_ + '\\' + str.data)).c_str());
 	    if(type == aiTextureType_DIFFUSE) {
 		texture.object_texture.type = DIFFUSE;
 	    } else if(type == aiTextureType_SPECULAR) {

@@ -54,6 +54,10 @@ IndexedModel ResourceLoader::setupMeshVAO(std::vector<Vertex> vertices, std::vec
 }
 
 Texture2D ResourceLoader::loadTexture(const char *file) {
+    return loadTexture(file, TextureData());
+}
+
+Texture2D ResourceLoader::loadTexture(const char *file, TextureData texture_data) {
     uint texture_id;
     glGenTextures(1, &texture_id);
 
@@ -62,18 +66,13 @@ Texture2D ResourceLoader::loadTexture(const char *file) {
 
     uint internal_format = (n_channels == 4) ? GL_RGBA : GL_RGB;
     uint image_format = (n_channels == 4) ? GL_RGBA : GL_RGB;
-    // TODO: create a method that can take those as arguments
-    uint wrap_s = GL_REPEAT;
-    uint wrap_t = GL_REPEAT;
-    uint filter_min = GL_LINEAR;
-    uint filter_max = GL_LINEAR;
     
     glBindTexture(GL_TEXTURE_2D, texture_id);
     glTexImage2D(GL_TEXTURE_2D, 0, internal_format, width, height, 0, image_format, GL_UNSIGNED_BYTE, data);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_s);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_t);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter_min);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter_max);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texture_data.wrap_s);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texture_data.wrap_t);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texture_data.filter_min);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, texture_data.filter_max);
     glBindTexture(GL_TEXTURE_2D, 0);
     
     stbi_image_free(data);

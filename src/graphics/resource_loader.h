@@ -18,8 +18,9 @@ struct ResourceLoader {
     RawModel loadToVAO(std::vector<float> positions, std::vector<float> normals, std::vector<float> tex_coords);
     RawModel loadToVAO(std::vector<float> positions, int dimension);
     IndexedModel setupMeshVAO(std::vector<Vertex> vertices, std::vector<uint> indices);
-    
+
     Texture2D loadTexture(const char *file);
+    Texture2D loadTexture(const char *file, TextureData texture_data);
     Texture2D createTextureAttachment(int width, int height);
     Texture2D createDepthTextureAttachment(int width, int height);
     uint createDepthBufferAttachment(int width, int height);
