@@ -21,7 +21,7 @@ RawModel ResourceLoader::loadToVAO(std::vector<float> positions, int dimension) 
     return RawModel(VAO_id, positions.size()/dimension);
 }
 
-IndexedModel ResourceLoader::setupMeshVAO(std::vector<Vertex> vertices, std::vector<uint> indices) {
+RawModel ResourceLoader::setupMeshVAO(std::vector<Vertex> vertices, std::vector<uint> indices) {
     uint VAO, VBO, EBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -50,7 +50,7 @@ IndexedModel ResourceLoader::setupMeshVAO(std::vector<Vertex> vertices, std::vec
     VAOs_.push_back(VAO);
     VBOs_.push_back(VBO);
     EBOs_.push_back(EBO);
-    return IndexedModel(VAO, indices.size());
+    return RawModel(VAO, indices.size());
 }
 
 Texture2D ResourceLoader::loadTexture(const char *file) {

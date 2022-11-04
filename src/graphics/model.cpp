@@ -98,7 +98,7 @@ Mesh Model::processMesh(ResourceLoader& loader, Shader shader, aiMesh *mesh, con
 
     std::vector<ObjectTexture> specular_maps = loadMaterialTextures(loader, material, aiTextureType_SPECULAR);
     textures.insert(textures.end(), specular_maps.begin(), specular_maps.end());
-
+    
     // std::vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
     // textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 

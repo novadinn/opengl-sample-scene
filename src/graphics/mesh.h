@@ -16,7 +16,7 @@ struct Mesh {
     void draw();
     
 private:
-    IndexedModel model_;
+    RawModel model_;
     std::vector<ObjectTexture> textures_;
     Shader shader_;
 };

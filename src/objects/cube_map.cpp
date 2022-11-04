@@ -46,7 +46,7 @@ void CubeMap::draw(glm::mat4& projection, glm::mat4& view) {
     glm::mat4 rotated_view = glm::rotate(view, glm::radians(rotation_), glm::vec3(0.0f, 1.0f, 0.0f));
     shader_.setMatrix4("projection", projection);
     shader_.setMatrix4("view", rotated_view);
-    glDrawArrays(GL_TRIANGLES, 0, model_.getVertexCount());
+    glDrawArrays(GL_TRIANGLES, 0, model_.getDataCount());
 
     RawModel::disableAttribute(0);
     RawModel::unbind();

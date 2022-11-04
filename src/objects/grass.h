@@ -2,10 +2,9 @@
 #define GRASS_H
 
 #include "../graphics/model.h"
-#include "game_object.h"
+#include "shaded_model.h"
 
-// NOTE: possibly rename to terrain
-struct Grass : public GameObject {
+struct Grass : public ShadedModel {
     Grass(ResourceLoader& loader);
 
     void update(float delta_time);
@@ -36,9 +35,6 @@ private:
     void draw();
     void endDrawing() override;
     
-    Model grass_model_;
-    Shader plane_shader_; // TODO: connect those 2 in 1 class
-    Model plane_model_;
     Texture2D distortion_map_;
 
     float bend_rotation_random_ = 0.2f;

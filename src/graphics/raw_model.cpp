@@ -2,15 +2,15 @@
 
 #include <glad/glad.h>
 
-RawModel::RawModel(uint VAO_id, int vertex_count) :
-    VAO_id_(VAO_id), vertex_count_(vertex_count) {}
+RawModel::RawModel(uint VAO_id, int data_count) :
+    VAO_id_(VAO_id), data_count_(data_count) {}
 
 uint RawModel::getVAOId() const {
     return VAO_id_;
 }
 
-int RawModel::getVertexCount() const {
-    return vertex_count_;
+int RawModel::getDataCount() const {
+    return data_count_;
 }
 
 void RawModel::bind() const {

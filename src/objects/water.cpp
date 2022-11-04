@@ -108,7 +108,7 @@ void Water::draw(glm::vec3 camera_position) {
     shader_.setFloat("near", Display::near_plane);
     shader_.setFloat("far", Display::far_plane);
     
-    glDrawArrays(GL_TRIANGLES, 0, model_.getVertexCount());
+    glDrawArrays(GL_TRIANGLES, 0, model_.getDataCount());
 }
 
 void Water::endDrawing() {

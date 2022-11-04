@@ -5,7 +5,6 @@
 
 #include "graphics/resource_loader.cpp"
 #include "graphics/raw_model.cpp"
-#include "graphics/indexed_model.cpp"
 #include "graphics/shader.cpp"
 #include "graphics/textures.cpp"
 #include "graphics/frame_buffer.cpp"
@@ -22,6 +21,7 @@
 #include "objects/flashlight.cpp"
 #include "objects/water.cpp"
 #include "objects/grass.cpp"
+#include "objects/shaded_model.cpp"
 
 #include "camera.cpp"
 #include "keyboard.cpp"
@@ -108,9 +108,8 @@ int main() {
     Water water(loader);
     water.position = glm::vec3(0.0f, -1.0f, 0.0f);
     water.size = glm::vec3(10.0f);
-    
-    Grass grass(loader);
-    grass.position = glm::vec3(0.0f, -1.0f, 0.0f);
+
+    ShadedModel model(loader, main_shader, file_system::join("objects\\casa.obj"));
     
     const glm::vec4 up_clip_plane(0.0f, -1.0f, 0.0f, water.position.y);
     // TODO: add those to all shaders (except water)!
@@ -134,8 +133,6 @@ int main() {
 
 	// update
 	keyboard.updateKeyStates(window);
-
-	grass.update(global_delta_time);
 	
 	if(keyboard.isKeyDown(GLFW_KEY_ESCAPE))
 	    glfwSetWindowShouldClose(window, true);
@@ -162,7 +159,7 @@ int main() {
 	    glm::mat4 view = global_camera.getViewMatrix();
 	    
 	    cube.draw(projection, view, global_camera.position, dir_light, *spot_light, point_light);
-	    grass.draw(projection, view);
+	    model.draw(projection, view);
 	    
 	    view = glm::mat4(glm::mat3(global_camera.getViewMatrix()));
 	    cube_map.draw(projection, view);

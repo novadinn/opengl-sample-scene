@@ -81,7 +81,7 @@ void TexturedObject::draw(glm::vec3& view_pos, DirectionalLight& dir_light,
     shader_.setFloat(("pointLights[" + number + "].linear").c_str(), point_light.linear);
     shader_.setFloat(("pointLights[" + number + "].quadratic").c_str(), point_light.quadratic);
     
-    glDrawArrays(GL_TRIANGLES, 0, model_.getVertexCount());
+    glDrawArrays(GL_TRIANGLES, 0, model_.getDataCount());
 }
 
 void TexturedObject::endDrawing() {

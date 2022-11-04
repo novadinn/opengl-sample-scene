@@ -4,10 +4,10 @@
 #include "../platform.h"
 
 struct RawModel {
-    RawModel(uint VAO_id, int vertex_count);
+    RawModel(uint VAO_id, int data_count);
 
     uint getVAOId() const;
-    int getVertexCount() const;
+    int getDataCount() const;
 
     void bind() const;
     shared void unbind();
@@ -15,7 +15,7 @@ struct RawModel {
     shared void disableAttribute(int number);
 private:
     uint VAO_id_;
-    int vertex_count_;
+    int data_count_;
 };
 
 #endif

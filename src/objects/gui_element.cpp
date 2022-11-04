@@ -32,7 +32,7 @@ void GuiElement::draw() {
     glDisable(GL_DEPTH_TEST);
 
     shader_.setMatrix4("model", model);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, model_.getVertexCount());
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, model_.getDataCount());
 
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);

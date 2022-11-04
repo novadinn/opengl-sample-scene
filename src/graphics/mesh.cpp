@@ -38,21 +38,21 @@ void Mesh::draw()  {
     
     model_.bind();
 
-    IndexedModel::enableAttribute(0);
-    IndexedModel::enableAttribute(1);
-    IndexedModel::enableAttribute(2);
-    IndexedModel::enableAttribute(3);
-    IndexedModel::enableAttribute(4);
+    RawModel::enableAttribute(0);
+    RawModel::enableAttribute(1);
+    RawModel::enableAttribute(2);
+    RawModel::enableAttribute(3);
+    RawModel::enableAttribute(4);
     
-    glDrawElements(GL_TRIANGLES, model_.getIndicesCount(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, model_.getDataCount(), GL_UNSIGNED_INT, 0);
 
-    IndexedModel::disableAttribute(0);
-    IndexedModel::disableAttribute(1);
-    IndexedModel::disableAttribute(2);
-    IndexedModel::disableAttribute(3);
-    IndexedModel::disableAttribute(4);
+    RawModel::disableAttribute(0);
+    RawModel::disableAttribute(1);
+    RawModel::disableAttribute(2);
+    RawModel::disableAttribute(3);
+    RawModel::disableAttribute(4);
 
-    IndexedModel::unbind();
+    RawModel::unbind();
     Texture2D::deactivate();
     Texture2D::unbind();
 }
