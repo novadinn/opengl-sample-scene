@@ -102,8 +102,8 @@ void Water::draw(glm::vec3 camera_position) {
     shader_.setFloat("waveStrength", wave_strength);
     shader_.setFloat("shineDamper", shine_damper);
     shader_.setFloat("reflectivity", reflectivity);
-    shader_.setFloat("near", Display::near_plane);
-    shader_.setFloat("far", Display::far_plane);
+    shader_.setFloat("near", Display::kNearPlane);
+    shader_.setFloat("far", Display::kFarPlane);
     
     glDrawArrays(GL_TRIANGLES, 0, model_.getDataCount());
 }

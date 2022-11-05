@@ -36,8 +36,8 @@ internal void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 internal void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 global_variable Camera global_camera(glm::vec3(0.0f, 0.0f, 3.0f));
-global_variable float global_last_x = Display::window_width / 2.0f;
-global_variable float global_last_y = Display::window_height / 2.0f;
+global_variable float global_last_x = Display::kWindowWidth / 2.0f;
+global_variable float global_last_y = Display::kWindowHeight / 2.0f;
 global_variable bool global_first_mouse = true;
 
 global_variable float global_delta_time = 0.0f;
@@ -53,7 +53,7 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    GLFWwindow* window = glfwCreateWindow(Display::window_width, Display::window_height, "Scene", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(Display::kWindowWidth, Display::kWindowHeight, "Scene", NULL, NULL);
     if (window == NULL) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -93,7 +93,7 @@ int main() {
     
     Flashlight flashlight;
     
-    DirectionalLight dir_light(glm::vec3(-0.2f, -1.0f, -0.3f));
+    DirectionalLight dir_light(glm::vec3(-2000.0f, -100000.0f, -3000.0f));
     PointLight point_light(glm::vec3(-0.07f, 1.5f, 2.0f), 0);
     SpotLight* spot_light(&flashlight.spot_light);
 
@@ -166,9 +166,9 @@ int main() {
 	    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	    glm::mat4 projection = global_camera.getProjectionMatrix((float)Display::window_width,
-								     (float)Display::window_height,
-								     Display::near_plane, Display::far_plane);
+	    glm::mat4 projection = global_camera.getProjectionMatrix((float)Display::kWindowWidth,
+								     (float)Display::kWindowHeight,
+								     Display::kNearPlane, Display::kFarPlane);
 	    glm::mat4 view = global_camera.getViewMatrix();
 
 	    color_shader.bind();
@@ -217,9 +217,9 @@ int main() {
 
 	// basic rendering
 	render();
-	glm::mat4 projection = global_camera.getProjectionMatrix((float)Display::window_width,
-								 (float)Display::window_height,
-								 Display::near_plane, Display::far_plane);
+	glm::mat4 projection = global_camera.getProjectionMatrix((float)Display::kWindowWidth,
+								 (float)Display::kWindowHeight,
+								 Display::kNearPlane, Display::kFarPlane);
 	glm::mat4 view = global_camera.getViewMatrix();
 	water.draw(projection, view, global_camera.position);
 	

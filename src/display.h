@@ -5,11 +5,11 @@
 
 struct Display {
 
-    shared int window_width;
-    shared int window_height;
+    shared int kWindowWidth;
+    shared int kWindowHeight;
     
-    shared float near_plane;
-    shared float far_plane;
+    shared float kNearPlane;
+    shared float kFarPlane;
     
 private:
     Display() {}

@@ -15,7 +15,7 @@ void FrameBuffer::bind(int width, int height) {
 
 void FrameBuffer::unbind() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, Display::window_width, Display::window_height);
+    glViewport(0, 0, Display::kWindowWidth, Display::kWindowHeight);
 }
     
 uint FrameBuffer::getId() const {
