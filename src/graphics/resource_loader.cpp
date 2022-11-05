@@ -36,16 +36,21 @@ RawModel ResourceLoader::setupMeshVAO(std::vector<Vertex> vertices, std::vector<
 		 indices.data(), GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+    glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+    glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tex_coords));
-
-    glEnableVertexAttribArray(3);
+    glEnableVertexAttribArray(2);
     glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
-
-    glEnableVertexAttribArray(4);
+    glEnableVertexAttribArray(3);
     glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, bitangent));
-	
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
+    glEnableVertexAttribArray(5);
+    	
     glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     VAOs_.push_back(VAO);
     VBOs_.push_back(VBO);
@@ -299,7 +304,7 @@ void ResourceLoader::storeDataInAttributeList(int attribute_number, int coordina
     glBindBuffer(GL_ARRAY_BUFFER, VBO_id);
     glBufferData(GL_ARRAY_BUFFER, data.size()*sizeof(float), data.data(), GL_STATIC_DRAW);
     glVertexAttribPointer(attribute_number, coordinate_size, GL_FLOAT, GL_FALSE, 0, 0);
-    // glEnableVertexAttribArray(attribute_number);
+    glEnableVertexAttribArray(attribute_number);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 

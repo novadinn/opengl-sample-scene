@@ -23,6 +23,11 @@ uniform float reflectivity;
 uniform float near;
 uniform float far;
 
+const vec4 waterColor = vec4(0.0, 0.3, 0.5, 1.0);
+const float alphaDivisor = 0.5;
+const float distortionDivisor = 20.0;
+const float colorMixAmount = 0.5;
+
 void main() {
     vec2 ndc = (vs_in.clipSpace.xy/vs_in.clipSpace.w)/2.0 + 0.5;
     vec2 reflectTexCoords = vec2(ndc.x, -ndc.y);
@@ -34,10 +39,11 @@ void main() {
     depth = gl_FragCoord.z;
     float waterDistance = 2.0 * near * far / (far + near - (2.0 * depth - 1.0) * (far - near));
     float waterDepth = floorDistance - waterDistance;
-
+    
     vec2 distortedTexCoords = texture(dudvMap, vec2(vs_in.texCoords.x + moveFactor, vs_in.texCoords.y)).rg*0.1;
     distortedTexCoords = vs_in.texCoords + vec2(distortedTexCoords.x, distortedTexCoords.y+moveFactor);
-    vec2 totalDistortion = (texture(dudvMap, distortedTexCoords).rg * 2.0 - 1.0) * waveStrength * clamp(waterDepth/20.0, 0.0, 1.0);
+    vec2 totalDistortion = (texture(dudvMap, distortedTexCoords).rg * 2.0 - 1.0) *
+	waveStrength * clamp(waterDepth/distortionDivisor, 0.0, 1.0);
     
     refractTexCoords += totalDistortion;
     refractTexCoords = clamp(refractTexCoords, 0.001, 0.999);
@@ -58,6 +64,6 @@ void main() {
     refractiveFactor = clamp(refractiveFactor, 0.0, 1.0);
     
     outColor = mix(reflectionColor, refractionColor, refractiveFactor);
-    outColor = mix(outColor, vec4(0.0, 0.3, 0.5, 1.0), 0.2);
-    outColor.a = clamp(waterDepth/5.0, 0.0, 1.0);
+    outColor = mix(outColor, waterColor, colorMixAmount);
+    outColor.a = clamp(waterDepth/alphaDivisor, 0.0, 1.0);
 }

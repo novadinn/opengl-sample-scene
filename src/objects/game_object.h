@@ -6,12 +6,19 @@
 
 #include "../graphics/shader.h"
 #include "../graphics/textures.h"
+#include "directional_light.h"
+#include "spot_light.h"
+#include "point_light.h"
 
 struct GameObject {
     GameObject(Shader shader);
     virtual ~GameObject() {};
 
     void draw(glm::mat4& projection, glm::mat4& view);
+    
+    void useDirectionalLight(glm::vec3& view_pos, DirectionalLight& light);
+    void usePointLight(glm::vec3& view_pos, PointLight& light);
+    void useSpotLight(glm::vec3& view_pos, SpotLight& light);
     
     glm::vec3 position;
     glm::vec3 size;

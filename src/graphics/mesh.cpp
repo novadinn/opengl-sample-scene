@@ -5,6 +5,7 @@ Mesh::Mesh(ResourceLoader& loader, Shader shader, std::vector<Vertex> vertices,
     model_(loader.setupMeshVAO(vertices, indices)), textures_(textures), shader_(shader) {
 
     shader_.bind();
+    
     unsigned int n_diffuse = 1;
     unsigned int n_specular = 1;
     // unsigned int n_normal = 1;
@@ -37,20 +38,8 @@ void Mesh::draw()  {
     }
     
     model_.bind();
-
-    RawModel::enableAttribute(0);
-    RawModel::enableAttribute(1);
-    RawModel::enableAttribute(2);
-    RawModel::enableAttribute(3);
-    RawModel::enableAttribute(4);
     
     glDrawElements(GL_TRIANGLES, model_.getDataCount(), GL_UNSIGNED_INT, 0);
-
-    RawModel::disableAttribute(0);
-    RawModel::disableAttribute(1);
-    RawModel::disableAttribute(2);
-    RawModel::disableAttribute(3);
-    RawModel::disableAttribute(4);
 
     RawModel::unbind();
     Texture2D::deactivate();

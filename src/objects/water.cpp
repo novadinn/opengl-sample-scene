@@ -17,7 +17,7 @@ namespace {
     
     const std::string kDuDvMapFilePath = file_system::join("img\\textures\\water\\water_dudv.png");
     const std::string kNormalMapFilePath = file_system::join("img\\textures\\water\\water_normal_map.png");
-    const float kMoveSpeed = 0.03f;
+    const float kMoveSpeed = 0.01f;
 }
 
 Water::Water(ResourceLoader& loader) :
@@ -91,10 +91,7 @@ void Water::prepareDrawing() {
     Texture2D::activate(4);
     refraction_depth_texture_.bind();
     model_.bind();
-    RawModel::enableAttribute(0);
-    RawModel::enableAttribute(1);
-    RawModel::enableAttribute(2);
-
+    
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
@@ -114,9 +111,6 @@ void Water::draw(glm::vec3 camera_position) {
 void Water::endDrawing() {
     glDisable(GL_BLEND);
     
-    RawModel::disableAttribute(0);
-    RawModel::disableAttribute(1);
-    RawModel::disableAttribute(2);
     RawModel::unbind();
     Texture2D::deactivate();
     Texture2D::unbind();

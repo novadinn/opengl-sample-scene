@@ -7,6 +7,7 @@ struct Vertex {
     glm::vec2 tex_coords;
     glm::vec3 tangent;
     glm::vec3 bitangent;
+    glm::vec3 color;
 };
 
 #endif

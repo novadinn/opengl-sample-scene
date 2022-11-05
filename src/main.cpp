@@ -86,30 +86,38 @@ int main() {
 	loader.loadToVAO(primitives::cube_positions, 3);
     RawModel plane_model =
 	loader.loadToVAO(primitives::plane_positions, primitives::plane_normals, primitives::plane_tex_coords);
-    
-    Shader main_shader = loader.loadVSFSShader(
-	file_system::join("shaders\\main_vert.glsl").c_str(),
-	file_system::join("shaders\\main_frag.glsl").c_str());
-    // TODO: add tesselation shader stage
+
+    Shader color_shader = loader.loadVSFSShader(
+	file_system::join("shaders\\colored_vert.glsl").c_str(),
+	file_system::join("shaders\\colored_frag.glsl").c_str());
     
     Flashlight flashlight;
     
     DirectionalLight dir_light(glm::vec3(-0.2f, -1.0f, -0.3f));
-    PointLight point_light(glm::vec3(4.0f, 0.5f, 0.0f), 0);
+    PointLight point_light(glm::vec3(-0.07f, 1.5f, 2.0f), 0);
     SpotLight* spot_light(&flashlight.spot_light);
 
     std::vector<ObjectTexture> object_textures = {
 	{ DIFFUSE, container_diffuse_texture },
 	{ SPECULAR, container_specular_texture }
     };
-    TexturedObject cube(cube_model, main_shader, object_textures);
-    cube.position = glm::vec3(3.0f, -1.0f, 0.0f);
     CubeMap cube_map(loader);
     Water water(loader);
-    water.position = glm::vec3(0.0f, -1.0f, 0.0f);
-    water.size = glm::vec3(10.0f);
+    water.position = glm::vec3(0.0f, -0.45f, 0.0f);
+    water.size = glm::vec3(4.0f);
 
-    ShadedModel model(loader, main_shader, file_system::join("objects\\casa.obj"));
+    ShadedModel model(loader, color_shader, file_system::join("objects\\garden.obj"));
+
+    Grass grass(loader);
+    grass.position = glm::vec3(4.0f, -0.37f, -2.6f);
+    Grass grass2(loader);
+    grass2.position = glm::vec3(-4.0f, -0.37f, -2.85f);
+    Grass grass3(loader);
+    grass3.position = glm::vec3(-3.7f, -0.37f, 2.2f);
+    grass3.rotation = glm::vec3(0.0f, 90.0f, 0.0f);
+    Grass grass4(loader);
+    grass4.position = glm::vec3(0.6f, -0.37f, 4.0f);
+    grass4.rotation = glm::vec3(0.0f, 45.0f, 0.0f);
     
     const glm::vec4 up_clip_plane(0.0f, -1.0f, 0.0f, water.position.y);
     // TODO: add those to all shaders (except water)!
@@ -125,7 +133,7 @@ int main() {
     keyboard.addKeyBinding(GLFW_KEY_SPACE);
     keyboard.addKeyBinding(GLFW_KEY_LEFT_CONTROL);
     keyboard.addKeyBinding(GLFW_KEY_F);
-    
+        
     while (!glfwWindowShouldClose(window)) {
         float current_time = (float)glfwGetTime();
         global_delta_time = current_time - global_last_time;
@@ -133,6 +141,11 @@ int main() {
 
 	// update
 	keyboard.updateKeyStates(window);
+
+	grass.update(global_delta_time);
+	grass2.update(global_delta_time);
+	grass3.update(global_delta_time);
+	grass4.update(global_delta_time);
 	
 	if(keyboard.isKeyDown(GLFW_KEY_ESCAPE))
 	    glfwSetWindowShouldClose(window, true);
@@ -157,12 +170,21 @@ int main() {
 								     (float)Display::window_height,
 								     Display::near_plane, Display::far_plane);
 	    glm::mat4 view = global_camera.getViewMatrix();
-	    
-	    cube.draw(projection, view, global_camera.position, dir_light, *spot_light, point_light);
+
+	    color_shader.bind();
+	    color_shader.setFloat("shininess", 10.0f);
+	    model.useDirectionalLight(global_camera.position, dir_light);
+	    model.useSpotLight(global_camera.position, flashlight.spot_light);
+	    model.usePointLight(global_camera.position, point_light);	    
 	    model.draw(projection, view);
+
+	    grass.draw(projection, view);
+	    grass2.draw(projection, view);
+	    grass3.draw(projection, view);
+	    grass4.draw(projection, view);
 	    
-	    view = glm::mat4(glm::mat3(global_camera.getViewMatrix()));
-	    cube_map.draw(projection, view);
+	    glm::mat4 view_no_translation = glm::mat4(glm::mat3(global_camera.getViewMatrix()));
+	    cube_map.draw(projection, view_no_translation);
 	};
 
 	glEnable(GL_CLIP_DISTANCE0);
@@ -172,8 +194,8 @@ int main() {
 	float distance = 2 * (global_camera.position.y - water.position.y);
 	global_camera.position.y -= distance;
 	global_camera.setPitch(-global_camera.getPitch());
-	main_shader.bind();
-	main_shader.setVector4f("plane", down_clip_plane); // NOTE: Test edges with +1.0
+	color_shader.bind();
+	color_shader.setVector4f("plane", down_clip_plane); // NOTE: Test edges with +1.0
 	Shader::unbind();
 	render();
 	global_camera.position.y += distance;
@@ -181,15 +203,17 @@ int main() {
 
 	// refraction
 	water.bindRefractionFrameBuffer();
-	main_shader.bind();
-	main_shader.setVector4f("plane", up_clip_plane); // NOTE: test edges with +1.0 or -1.0
+	color_shader.bind();
+	color_shader.setVector4f("plane", up_clip_plane); // NOTE: test edges with +1.0 or -1.0
 	Shader::unbind();
 	render();
-	glDisable(GL_CLIP_DISTANCE0);
-	main_shader.bind();
-	main_shader.setVector4f("plane", high_clip_plane);
-	water.unbindCurrentFrameBuffer();
+	
+	color_shader.bind();
+	color_shader.setVector4f("plane", high_clip_plane);
 	Shader::unbind();
+	
+	water.unbindCurrentFrameBuffer();
+	glDisable(GL_CLIP_DISTANCE0);
 
 	// basic rendering
 	render();

@@ -48,11 +48,8 @@ void TexturedObject::prepareDrawing() {
     }
     
     model_.bind();
-    RawModel::enableAttribute(0);
-    RawModel::enableAttribute(1);
-    RawModel::enableAttribute(2);    
 }
-
+	
 void TexturedObject::draw(glm::vec3& view_pos, DirectionalLight& dir_light,
 			  SpotLight& spot_light, PointLight& point_light) {
     shader_.setVector3f("viewPos", view_pos);
@@ -85,9 +82,6 @@ void TexturedObject::draw(glm::vec3& view_pos, DirectionalLight& dir_light,
 }
 
 void TexturedObject::endDrawing() {
-    RawModel::disableAttribute(0);
-    RawModel::disableAttribute(1);
-    RawModel::disableAttribute(2);
     RawModel::unbind();
     Texture2D::deactivate();
     Texture2D::unbind();

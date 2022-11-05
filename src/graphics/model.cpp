@@ -46,10 +46,14 @@ Mesh Model::processMesh(ResourceLoader& loader, Shader shader, aiMesh *mesh, con
     std::vector<unsigned int> indices;
     std::vector<ObjectTexture> textures;
 
+    aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];    
+    aiColor3D color(0.0f, 0.0f, 0.0f);
+    material->Get(AI_MATKEY_COLOR_DIFFUSE, color);
+    
     for(int i = 0; i < mesh->mNumVertices; ++i) {
 	Vertex vertex;
 	glm::vec3 vector;
-
+	
 	vector.x = mesh->mVertices[i].x;
 	vector.y = mesh->mVertices[i].y;
 	vector.z = mesh->mVertices[i].z;
@@ -77,10 +81,14 @@ Mesh Model::processMesh(ResourceLoader& loader, Shader shader, aiMesh *mesh, con
 	    vector.y = mesh->mBitangents[i].y;
 	    vector.z = mesh->mBitangents[i].z;
 	    vertex.bitangent = vector;
-	}
-	else {
+	} else {
 	    vertex.tex_coords = glm::vec2(0.0f, 0.0f);
 	}
+
+	vector.x = color.r;
+	vector.y = color.g;
+	vector.z = color.b;
+	vertex.color = vector;
 
 	vertices.push_back(vertex);
     }
@@ -90,9 +98,7 @@ Mesh Model::processMesh(ResourceLoader& loader, Shader shader, aiMesh *mesh, con
 	for(int j = 0; j < face.mNumIndices; j++)
 	    indices.push_back(face.mIndices[j]);        
     }
-
-    aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];    
-
+    
     std::vector<ObjectTexture> diffuse_maps = loadMaterialTextures(loader, material, aiTextureType_DIFFUSE);
     textures.insert(textures.end(), diffuse_maps.begin(), diffuse_maps.end());
 

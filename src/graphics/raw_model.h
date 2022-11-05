@@ -11,8 +11,6 @@ struct RawModel {
 
     void bind() const;
     shared void unbind();
-    shared void enableAttribute(int number);
-    shared void disableAttribute(int number);
 private:
     uint VAO_id_;
     int data_count_;
